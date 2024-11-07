@@ -1,17 +1,13 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
 import { collisions } from "@/data/Collisions";
 
-const collisionsMap=[];
-
-
-for (let i = 0; i < collisions.length; i+=70) {
-  collisionsMap.push(collisions.slice(i, i+70));
-  
+const collisionsMap = [];
+for (let i = 0; i < collisions.length; i += 70) {
+  collisionsMap.push(collisions.slice(i, i + 70));
 }
-console.log(collisionsMap)
 
 const Map = () => {
   let x = -1185,
@@ -19,23 +15,24 @@ const Map = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   let keys = {
-    ArrowUp: {
-      pressed: false,
-    },
-    ArrowDown: {
-      pressed: false,
-    },
-    ArrowLeft: {
-      pressed: false,
-    },
-    ArrowRight: {
-      pressed: false,
-    },
+    ArrowUp: { pressed: false },
+    ArrowDown: { pressed: false },
+    ArrowLeft: { pressed: false },
+    ArrowRight: { pressed: false },
   };
 
   let lastKey = "";
-
   const speed = 1.5;
+  let frame = 0; // To control sprite animation
+  let animationCounter = 0; // Control frame update speed
+
+  // Preload images
+  
+  const backgroundImage = new window.Image();
+  const playerSprite = new window.Image();
+
+  backgroundImage.src = mapImage.src;
+  playerSprite.src = playerImage.src;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -50,35 +47,31 @@ const Map = () => {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
-    // console.log(collisions)
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
-  const draw = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    const img = new window.Image();
-    const playerImg = new window.Image();
+  const draw = (ctx: CanvasRenderingContext2D) => {
+    // Clear canvas before drawing
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    img.src = mapImage.src;
-    playerImg.src = playerImage.src;
+    // Draw map
+    ctx.drawImage(backgroundImage, x, y, 3500, 2500);
 
-    img.onload = () => {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.drawImage(img, x, y, 3500, 2500);
-      ctx.drawImage(
-        playerImg,
-        0,
-        0,
-        playerImage.width / 4,
-        playerImage.height,
-        ctx.canvas.width / 2 - playerImage.width / 1.6,
-        ctx.canvas.height / 2 - playerImage.height,
-        playerImage.width / 4,
-        playerImage.height
-      );
-    };
+    // Draw player sprite at the center of the screen, updating the frame for animation
+    ctx.drawImage(
+      playerSprite,
+      frame * 48, // X position for current frame in sprite sheet
+      0, // Y position (assuming single row of frames)
+      playerImage.width / 4, // Width of a single frame
+      playerImage.height, // Full height of the sprite
+      ctx.canvas.width / 2 - playerImage.width / 4, // X position on canvas (centered)
+      ctx.canvas.height / 2 - playerImage.height, // Y position on canvas (centered)
+      playerImage.width / 4, // Scaled width
+      playerImage.height // Scaled height
+    );
   };
 
   useEffect(() => {
@@ -88,18 +81,25 @@ const Map = () => {
     function animate() {
       window.requestAnimationFrame(animate);
 
-      if (lastKey === "ArrowUp" && keys.ArrowUp.pressed) {
+      // Move player based on pressed keys
+      if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
         y += speed;
-      } else if (lastKey === "ArrowDown" && keys.ArrowDown.pressed) {
+      } else if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
         y -= speed;
-      } else if (lastKey === "ArrowLeft" && keys.ArrowLeft.pressed) {
+      } else if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
         x += speed;
-      } else if (lastKey === "ArrowRight" && keys.ArrowRight.pressed) {
+      } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
         x -= speed;
       }
-      
+
+      // Update animation frame every 10 frames to slow down the animation
+      animationCounter++;
+      if (animationCounter % 40 === 0) {
+        frame = (frame + 1) % 4; // Loop through the 4 frames
+      }
+
       if (context) {
-        draw(context, x, y);
+        draw(context);
       }
     }
 
