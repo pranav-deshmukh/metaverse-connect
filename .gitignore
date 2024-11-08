@@ -32,3 +32,9 @@
 # typescript
 /client/*.tsbuildinfo
 /client/next-env.d.ts
+
+
+
+#server:
+
+server/node_modules/
