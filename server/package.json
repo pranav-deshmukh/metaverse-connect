@@ -10,7 +10,8 @@
   "author": "Pranav Deshmukh",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

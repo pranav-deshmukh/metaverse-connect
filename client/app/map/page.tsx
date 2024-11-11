@@ -2,12 +2,23 @@
 import { useEffect, useRef } from "react";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
+import io from "socket.io-client";
 
 import { drawCharacter, drawMap } from "@/utils/draw";
+import { Socket } from "dgram";
 
 let moving = false;
 
+const socket = io("http://localhost:8000");
+
 const Map = () => {
+  useEffect(()=>{
+    socket.emit('join')
+    socket.on('rooms',(rooms)=>{
+      console.log(rooms)
+    })
+    return ()=>socket.close();
+  },[])
   let x = -1185, y = -1140;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -36,6 +47,7 @@ const Map = () => {
       keys[e.key as keyof typeof keys] && (keys[e.key as keyof typeof keys].pressed = true);
       lastKey = e.key;
       moving=true
+      console.log(x,y)
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -62,6 +74,7 @@ const Map = () => {
 
       if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
         y += speed;
+        
       } else if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
         y -= speed;
         moving=true
