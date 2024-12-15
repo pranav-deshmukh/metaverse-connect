@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
 });
 // console.log(DB)
 mongoose
-  .connect(DB)
+  .connect(DB??"")
   .then(() => {
     console.log("DB connected successfully");
     httpServer.listen(port, () => {

@@ -1,10 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, {Document} from "mongoose";
 import bcrypt from "bcrypt";
 
-export interface user {
+export interface userI extends Document {
   username: string;
   email: string;
   password: string;
+  correctPassword(candidatePassword: string, userPassword: string): boolean;
+
 }
 
 const userSchema = new mongoose.Schema({
@@ -37,4 +39,4 @@ userSchema.methods.correctPassword = async function (
   return bcrypt.compare(candidatePassword, userPassword);
 };
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<userI>("User", userSchema);

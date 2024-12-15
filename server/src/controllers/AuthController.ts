@@ -1,9 +1,9 @@
-import { User } from "../models/Usermodel"; 
+import { User, userI } from "../models/Usermodel"; 
 import * as jwt from "jsonwebtoken"
 import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
 
-const createSendToken = (user, statuscode:number, res:Response)=>{
+const createSendToken = (user:userI, statuscode:number, res:Response)=>{
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -39,6 +39,9 @@ export const login = async(req:Request,res:Response)=>{
         }
         createSendToken(user, 200, res);
     } catch (error) {
-        
+        return res.status(401).json({
+            status:"fail",
+            message:"An error occured"
+        })
     }
 }
