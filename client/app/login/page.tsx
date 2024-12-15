@@ -1,6 +1,6 @@
 "use client";
 
-import formSchema from "@/utils/signupSchema";
+import formSchema from "@/utils/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,36 +15,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUpFunc } from "@/utils/Authfunctions/signupFunc";
 import Link from "next/link";
+import { loginFunc } from "@/utils/Authfunctions/loginFunc";
 
 type FormData = z.infer<typeof formSchema>;
 export type FormValues = {
   username: string;
-  email: string;
   password: string;
-  confirmPassword: string;
 };
 
-export default function SignUp() {
+export default function Login() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
   const onSubmit = (data: FormValues) => {
     console.log("Form submitted:", data);
-    signUpFunc(data);
+    loginFunc(data);
   };
 
   return (
     <div className="w-screen h-screen flex flex-col justify-center items-center gap-y-4">
-        <h1 className="text-xl font-semibold">Sign up</h1>
+      <h1 className="text-xl font-semibold">Login</h1>
       <div className="w-[350px] bg-slate-50 p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -57,24 +53,12 @@ export default function SignUp() {
                   <FormControl>
                     <Input placeholder="Your username" {...field} />
                   </FormControl>
-                  
+
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Your email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="password"
@@ -92,26 +76,15 @@ export default function SignUp() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Confirm your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-        <Link className="text-xs text-gray-400 hover:underline" href={"/login"}>Already have an account? Login...</Link>
+
+            <Link
+              className="text-xs text-gray-400 hover:underline"
+              href={"/signup"}
+            >
+              Dont have an account? Signup...
+            </Link>
             <div className="w-full text-center">
-              <Button type="submit">Sign Up</Button>
+              <Button type="submit">Login</Button>
             </div>
           </form>
         </Form>
