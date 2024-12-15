@@ -114,7 +114,6 @@ const Map = () => {
   return (
     <div className="w-screen h-screen">
       <canvas ref={canvasRef} width={1024} height={576} className="border" />
-      <button onClick={()=>joinRoom(123)}>join</button>
     </div>
   );
 };
