@@ -39,4 +39,7 @@
 
 server/node_modules/
 
-server/src/.env
+server/.env
+
+
+*.env
