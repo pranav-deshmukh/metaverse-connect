@@ -15,10 +15,13 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: "*",  
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"], 
+    credentials: true, 
   },
 });
+
 const port = process.env.PORT || 8000;
 
 app.use(express.json());

@@ -2,28 +2,24 @@
 import { useEffect, useRef, useState } from "react";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
-import io from "socket.io-client";
+import {io, Socket} from 'socket.io-client'
 
 import { drawCharacter, drawMap } from "@/utils/draw";
-import { Socket } from "dgram";
 
 let moving = false;
 
 
 const Map = () => {
-  const [socket, setSocket] = useState(null)
-  const [rooms,setRooms] = useState([])
   let x = -1185, y = -1140;
-  const [movement, setMovement] = useState([x,y])
+  const [socket, setSocket] = useState<Socket>()
   useEffect(()=>{
-    const socketInstance = io("http://localhost:8000");
-    setSocket(socketInstance)
-    socketInstance.on('rooms',(updatedRooms)=>{
-      setRooms(updatedRooms)
-    })
-    socketInstance.emit('movement',x)
-    return ()=>socketInstance.close();
-  },[x,y])
+    const sc = io('http://localhost:8000');
+    setSocket(sc);
+    // sc.on('connection')
+    return ()=>sc.close();
+  },[])
+  const [movement, setMovement] = useState([x,y])
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   let keys = {
@@ -52,7 +48,6 @@ const Map = () => {
       lastKey = e.key;
       moving=true
       setMovement([x,y])
-      console.log(movement)
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -104,12 +99,6 @@ const Map = () => {
     animate();
   }, []);
 
-  const joinRoom=(roomId)=>{
-    if(socket){
-      socket.emit('join',(roomId));
-      setRooms(roomId)
-    }
-  }
 
   return (
     <div className="w-screen h-screen">
