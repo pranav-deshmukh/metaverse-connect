@@ -56,6 +56,7 @@ const Map = () => {
   let backgroundImage: HTMLImageElement;
   let playerSprite: HTMLImageElement;
 
+  
 
   useEffect(() => {
     backgroundImage = new window.Image();
