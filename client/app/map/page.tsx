@@ -12,12 +12,28 @@ const Map = () => {
   let x = -1185,
     y = -1140;
 
-  const socketRef = useRef<Socket | null>(null); // Use a ref for socket
+  const [socketId, setSocketId] = useState<string | null>(null);
+  const [roomData, setRoomData] = useState("");
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     const sc = io("http://localhost:8000");
-    socketRef.current = sc; // Assign the socket to the ref
-    return () => sc.close();
+    socketRef.current = sc;
+
+    sc.on("connect", () => {
+      setSocketId(sc.id);
+      console.log("Connected with socket ID:", sc.id);
+      sc.emit("join", 1234);
+      sc.on("rooms", (data) => {
+        console.log(data);
+        setRoomData(data);
+      });
+    });
+
+    return () => {
+      sc.emit('remove');
+      sc.disconnect()
+    };
   }, []);
 
   const [movement, setMovement] = useState([x, y]);
@@ -70,54 +86,64 @@ const Map = () => {
   }, []);
 
   useEffect(() => {
-  const canvas = canvasRef.current;
-  const context = canvas?.getContext("2d");
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
 
-  function animate() {
-    window.requestAnimationFrame(animate);
+    function animate() {
+      window.requestAnimationFrame(animate);
 
-    let updated = false;
+      let updated = false;
 
-    if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
-      y += speed;
-      updated = true;
-    } else if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
-      y -= speed;
-      updated = true;
-    } else if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
-      x += speed;
-      updated = true;
-    } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
-      x -= speed;
-      updated = true;
+      if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
+        y += speed;
+        updated = true;
+      } else if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
+        y -= speed;
+        updated = true;
+      } else if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
+        x += speed;
+        updated = true;
+      } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
+        x -= speed;
+        updated = true;
+      }
+
+      if (updated) {
+        setMovement([x, y]);
+        socketRef.current?.emit("movement", {
+          x,
+          y,
+          socketId: socketRef.current?.id,
+        });
+      }
+
+      animationCounter++;
+
+      if (context) {
+        drawMap(context, backgroundImage, x, y);
+        drawCharacter(context, playerSprite, frame);
+      }
+      if (!moving) return;
+      if (animationCounter % 40 === 0) {
+        frame = (frame + 1) % 4;
+      }
     }
 
-    // Update state and emit movement when there's a change
-    if (updated) {
-      setMovement([x, y]); // Update state to trigger reactivity
-      socketRef.current?.emit("movement", { x, y }); // Emit new coordinates
-    }
-
-    animationCounter++;
-
-    if (context) {
-      drawMap(context, backgroundImage, x, y);
-      drawCharacter(context, playerSprite, frame);
-    }
-    if (!moving) return;
-    if (animationCounter % 40 === 0) {
-      frame = (frame + 1) % 4;
-    }
-  }
-
-  animate();
-}, []); // Dependencies are empty since `x, y` are globals
-
-
+    animate();
+  }, []);
 
   return (
     <div className="w-screen h-screen">
       <canvas ref={canvasRef} width={1024} height={576} className="border" />
+      <div>Socket ID: {socketId || "Connecting..."}</div>
+      <ul className="list-disc pl-5">
+        {Object.entries(roomData).map(([roomName, users]) => (
+          <li key={roomName} className="mb-2">
+            <strong className="text-blue-500">{roomName}</strong>:{" "}
+            {users.join(", ")}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

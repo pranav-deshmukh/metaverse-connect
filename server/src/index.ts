@@ -15,10 +15,10 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",  
+    origin: "*",
     methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"], 
-    credentials: true, 
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   },
 });
 
@@ -50,18 +50,22 @@ app.use("/api/v1/users", AuthRouter);
 
 io.on("connection", (socket) => {
   console.log(socket.id);
-  socket.on("join", () => {
-    RoomManager.getInstance().addUser("user", 12345);
-    io.emit("rooms", RoomManager.getInstance().rooms);
-    console.log(RoomManager.getInstance().rooms);
+  socket.on("join", (room) => {
+    RoomManager.getInstance().addUser(socket.id, room);
+
+    const roomsObject = Object.fromEntries(RoomManager.getInstance().rooms);
+
+    io.emit("rooms", roomsObject);
+    console.log("Updated Rooms:", roomsObject);
   });
+
   socket.on("movement", (data) => {
     // const parsedData = JSON.parse(data.toString());
     console.log(data);
     io.emit("movement data", data);
   });
   socket.on("remove", () => {
-    RoomManager.getInstance().removeUser("user", 12345);
+    RoomManager.getInstance().removeUser(socket.id, '1234');
     console.log("Disconnected", RoomManager.getInstance().rooms);
     io.emit("rooms", RoomManager.getInstance().rooms);
   });
@@ -71,12 +75,13 @@ io.on("connection", (socket) => {
 });
 // console.log(DB)
 mongoose
-  .connect(DB??"")
+  .connect(DB ?? "")
   .then(() => {
     console.log("DB connected successfully");
     httpServer.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
-  }).catch((error)=>{
-    console.error("Error connecting to the database:", error);
   })
+  .catch((error) => {
+    console.error("Error connecting to the database:", error);
+  });
