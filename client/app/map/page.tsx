@@ -56,6 +56,7 @@ const Map = () => {
   let backgroundImage: HTMLImageElement;
   let playerSprite: HTMLImageElement;
 
+
   useEffect(() => {
     backgroundImage = new window.Image();
     playerSprite = new window.Image();
@@ -132,6 +133,19 @@ const Map = () => {
 
     animate();
   }, []);
+
+  useEffect(() => {
+  if (!socketRef.current) return;
+
+  socketRef.current.on("movement data", (data) => {
+    console.log("Movement data received:", data);
+  });
+
+  return () => {
+    socketRef.current?.off("movement data"); 
+  };
+}, []);
+
 
   return (
     <div className="w-screen h-screen">
