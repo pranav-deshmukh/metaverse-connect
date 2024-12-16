@@ -1,28 +1,52 @@
-export class RoomManager{
-    rooms = new Map();
-    static instance:RoomManager;
-    //singleton pattern
+export class RoomManager {
+  rooms = new Map<number, string[]>();
+  static instance: RoomManager;
 
-    private constructor(){
-        this.rooms = new Map();
+  private constructor() {
+    this.rooms = new Map();
+  }
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new RoomManager();
     }
-    static getInstance(){
-        if(!this.instance){
-            this.instance=new RoomManager();
-        }
-        return this.instance;
+    return this.instance;
+  }
+
+  public removeUser(socketId: string, spaceId: number) {
+    if (!this.rooms.has(spaceId)) {
+      return;
     }
-    public removeUser(user, spaceId){
-        if(!this.rooms.has(spaceId)){
-            return;
-        }
-        this.rooms.set(spaceId,(this.rooms.get(spaceId).filter((u)=>u.id!==user.id)??[]));
+    
+    const usersInRoom = this.rooms.get(spaceId) || [];
+    const updatedUsers = usersInRoom.filter((user) => user !== socketId);
+
+    if (updatedUsers.length > 0) {
+      this.rooms.set(spaceId, updatedUsers);
+    } else {
+      this.rooms.delete(spaceId);
     }
-    public addUser(user, spaceId){
-        if(!this.rooms.has(spaceId)){
-            this.rooms.set(spaceId,[user]);
-            return;
-        }
-        this.rooms.set(spaceId,[...(this.rooms.get(spaceId)??[]), user])
+    console.log(`Removed user ${socketId} from space ${spaceId}`, this.rooms);
+  }
+
+  public addUser(user: string, spaceId: number) {
+    // First, remove any existing instances of this user
+    // this.rooms.forEach((users, key) => {
+    //   if (users.includes(user)) {
+    //     this.removeUser(user, key);
+    //   }
+    // });
+
+    if (!this.rooms.has(spaceId)) {
+      this.rooms.set(spaceId, [user]);
+      console.log(`Added user ${user} to space ${spaceId}`);
+      return;
     }
+    
+    const existingUsers = this.rooms.get(spaceId) || [];
+    if (!existingUsers.includes(user)) {
+      this.rooms.set(spaceId, [...existingUsers, user]);
+      console.log(`Added user ${user} to space ${spaceId}`);
+    }
+  }
 }

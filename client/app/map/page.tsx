@@ -31,8 +31,9 @@ const Map = () => {
     });
 
     return () => {
+      console.log("remove", sc.id)
       sc.emit('remove');
-      sc.disconnect()
+      sc.close()
     };
   }, []);
 

@@ -49,30 +49,49 @@ app.use((req, res, next) => {
 app.use("/api/v1/users", AuthRouter);
 
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  console.log("New connection:", socket.id);
+
   socket.on("join", (room) => {
+    // Remove any previous socket for this user before adding the new one
+    // RoomManager.getInstance().removeUser(socket.id, room);
     RoomManager.getInstance().addUser(socket.id, room);
-
-    const roomsObject = Object.fromEntries(RoomManager.getInstance().rooms);
-
+    
+    const roomsObject = Object.fromEntries(
+      Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
+    );
+    
     io.emit("rooms", roomsObject);
     console.log("Updated Rooms:", roomsObject);
   });
 
   socket.on("movement", (data) => {
-    // const parsedData = JSON.parse(data.toString());
     console.log(data);
     io.emit("movement data", data);
   });
+
   socket.on("remove", () => {
-    RoomManager.getInstance().removeUser(socket.id, '1234');
-    console.log("Disconnected", RoomManager.getInstance().rooms);
-    io.emit("rooms", RoomManager.getInstance().rooms);
+    RoomManager.getInstance().removeUser(socket.id, 1234);
+    console.log("remove user: ", socket.id);
+    
+    const roomsObject = Object.fromEntries(
+      Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
+    );
+    
+    io.emit("rooms", roomsObject);
   });
+
   socket.on("disconnect", () => {
-    io.emit(RoomManager.getInstance().rooms.toString());
+    console.log("Disconnected", socket.id);
+    RoomManager.getInstance().removeUser(socket.id, 1234);
+    
+    const roomsObject = Object.fromEntries(
+      Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
+    );
+    
+    io.emit("rooms", roomsObject);
   });
 });
+
 // console.log(DB)
 mongoose
   .connect(DB ?? "")
