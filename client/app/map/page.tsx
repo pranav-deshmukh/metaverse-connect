@@ -2,23 +2,25 @@
 import { useEffect, useRef, useState } from "react";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
-import {io, Socket} from 'socket.io-client'
+import { io, Socket } from "socket.io-client";
 
 import { drawCharacter, drawMap } from "@/utils/draw";
 
 let moving = false;
 
-
 const Map = () => {
-  let x = -1185, y = -1140;
-  const [socket, setSocket] = useState<Socket>()
-  useEffect(()=>{
-    const sc = io('http://localhost:8000');
-    setSocket(sc);
-    // sc.on('connection')
-    return ()=>sc.close();
-  },[])
-  const [movement, setMovement] = useState([x,y])
+  let x = -1185,
+    y = -1140;
+
+  const socketRef = useRef<Socket | null>(null); // Use a ref for socket
+
+  useEffect(() => {
+    const sc = io("http://localhost:8000");
+    socketRef.current = sc; // Assign the socket to the ref
+    return () => sc.close();
+  }, []);
+
+  const [movement, setMovement] = useState([x, y]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -31,28 +33,31 @@ const Map = () => {
 
   let lastKey = "";
   const speed = 0.5;
-  let frame = 0; 
-  let animationCounter = 0; 
+  let frame = 0;
+  let animationCounter = 0;
 
-  let backgroundImage:HTMLImageElement;
-  let playerSprite:HTMLImageElement;
-  
+  let backgroundImage: HTMLImageElement;
+  let playerSprite: HTMLImageElement;
+
   useEffect(() => {
     backgroundImage = new window.Image();
     playerSprite = new window.Image();
-  
+
     backgroundImage.src = mapImage.src;
     playerSprite.src = playerImage.src;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      keys[e.key as keyof typeof keys] && (keys[e.key as keyof typeof keys].pressed = true);
+      keys[e.key as keyof typeof keys] &&
+        (keys[e.key as keyof typeof keys].pressed = true);
       lastKey = e.key;
-      moving=true
-      setMovement([x,y])
+      moving = true;
+      setMovement([x, y]);
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      keys[e.key as keyof typeof keys] && (keys[e.key as keyof typeof keys].pressed = false);
-      moving=false
+      keys[e.key as keyof typeof keys] &&
+        (keys[e.key as keyof typeof keys].pressed = false);
+      moving = false;
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -63,41 +68,51 @@ const Map = () => {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
-  
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
+  const canvas = canvasRef.current;
+  const context = canvas?.getContext("2d");
 
-    function animate() {
-      window.requestAnimationFrame(animate);
+  function animate() {
+    window.requestAnimationFrame(animate);
 
-      if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
-        y += speed;
-        
-      } else if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
-        y -= speed;
-        moving=true
-      } else if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
-        x += speed;
-      } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
-        x -= speed;
-      }
+    let updated = false;
 
-      animationCounter++;
-      
-      if (context) {
-        drawMap(context,backgroundImage,x,y);
-        drawCharacter(context, playerSprite, frame)
-      }
-      if(!moving)return;
-      if (animationCounter % 40 === 0) {
-        frame = (frame + 1) % 4; 
-      }
+    if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
+      y += speed;
+      updated = true;
+    } else if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
+      y -= speed;
+      updated = true;
+    } else if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
+      x += speed;
+      updated = true;
+    } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
+      x -= speed;
+      updated = true;
     }
 
-    animate();
-  }, []);
+    // Update state and emit movement when there's a change
+    if (updated) {
+      setMovement([x, y]); // Update state to trigger reactivity
+      socketRef.current?.emit("movement", { x, y }); // Emit new coordinates
+    }
+
+    animationCounter++;
+
+    if (context) {
+      drawMap(context, backgroundImage, x, y);
+      drawCharacter(context, playerSprite, frame);
+    }
+    if (!moving) return;
+    if (animationCounter % 40 === 0) {
+      frame = (frame + 1) % 4;
+    }
+  }
+
+  animate();
+}, []); // Dependencies are empty since `x, y` are globals
+
 
 
   return (
