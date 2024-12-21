@@ -15,6 +15,7 @@ const Map = () => {
   const [socketId, setSocketId] = useState<string | null>(null);
   const [roomData, setRoomData] = useState("");
   const socketRef = useRef<Socket | null>(null);
+  let userChar;
 
   useEffect(() => {
     const sc = io("http://localhost:8000");
@@ -25,15 +26,15 @@ const Map = () => {
       console.log("Connected with socket ID:", sc.id);
       sc.emit("join", 1234);
       sc.on("rooms", (data) => {
-        console.log(data);
+        console.log("room", data[1234]);
         setRoomData(data);
       });
     });
 
     return () => {
-      console.log("remove", sc.id)
-      sc.emit('remove');
-      sc.close()
+      console.log("remove", sc.id);
+      sc.emit("remove");
+      sc.close();
     };
   }, []);
 
@@ -55,8 +56,6 @@ const Map = () => {
 
   let backgroundImage: HTMLImageElement;
   let playerSprite: HTMLImageElement;
-
-  
 
   useEffect(() => {
     backgroundImage = new window.Image();
@@ -122,10 +121,36 @@ const Map = () => {
 
       animationCounter++;
 
-      if (context) {
-        drawMap(context, backgroundImage, x, y);
-        drawCharacter(context, playerSprite, frame);
+      if (context && canvas) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (backgroundImage.complete) {
+          drawMap(context, backgroundImage, x, y);
+        }
+        
+        for (let index = 0; index < 5; index++) {
+
+          const canvasX = 512 + (-1132 - index*50 - x);
+          const canvasY = 288 + (-1130 - index*50 - y);
+          
+          context.beginPath();
+          context.arc(
+            canvasX + Math.random(),
+            canvasY + Math.random(),
+            10,
+            0,
+            Math.PI * 2
+          );
+          context.fillStyle = "red";
+          context.fill();
+          context.closePath();
+        }
+
+        if (playerSprite.complete) {
+          drawCharacter(context, playerSprite, frame);
+        }
       }
+
       if (!moving) return;
       if (animationCounter % 40 === 0) {
         frame = (frame + 1) % 4;
@@ -135,18 +160,19 @@ const Map = () => {
     animate();
   }, []);
 
+ 
   useEffect(() => {
-  if (!socketRef.current) return;
+    if (!socketRef.current) return;
 
-  socketRef.current.on("movement data", (data) => {
-    console.log("Movement data received:", data);
-  });
+    socketRef.current.on("movement data", (data) => {
+      // console.log(roomData)
+      // console.log("Movement data received:", data);
+    });
 
-  return () => {
-    socketRef.current?.off("movement data"); 
-  };
-}, []);
-
+    return () => {
+      socketRef.current?.off("movement data");
+    };
+  }, []);
 
   return (
     <div className="w-screen h-screen">
