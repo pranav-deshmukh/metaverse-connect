@@ -186,7 +186,8 @@ const MapsPage: React.FC = () => {
     }
 
     animate();
-  }, [otherPlayers]); 
+  }, [otherPlayers]);
+  
   useEffect(() => {}, [otherPlayers]);
 
   return (
