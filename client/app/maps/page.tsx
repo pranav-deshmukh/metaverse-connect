@@ -12,7 +12,7 @@ const MapsPage: React.FC = () => {
   const socketRef = useRef<Socket | null>(null);
   const [otherPlayers, setOtherPlayers] = useState<{[key: string]: {x: number, y: number}}>({});
   
-  // Use refs for position to maintain values between renders
+
   const positionRef = useRef({ x: -1185, y: -1140 });
 
   let keys = {
@@ -43,12 +43,14 @@ const MapsPage: React.FC = () => {
     sc.on("movement data", (data) => {
       // console.log("Received movement data:", data);
       if (data.socketId !== sc.id) {
-        console.log("Other players:", otherPlayers);
+        console.log("Received movement data:", data);
         setOtherPlayers(prev => ({
           ...prev,
           [data.socketId]: { x: data.x, y: data.y }
         }));
       }
+      // console.log('other',otherPlayers);
+      
     });
 
     return () => {
@@ -164,8 +166,9 @@ const MapsPage: React.FC = () => {
       context.fillStyle = "blue";
       context.fill();
       
-      // Draw other players (red) relative to current position
+      
       Object.values(otherPlayers).forEach(player => {
+        // console.log('player',player);
         const relativeX = canvas.width / 2 + (player.x - positionRef.current.x);
         const relativeY = canvas.height / 2 + (player.y - positionRef.current.y);
         
@@ -183,7 +186,8 @@ const MapsPage: React.FC = () => {
     }
 
     animate();
-  }, [otherPlayers]); // Add otherPlayers as dependency
+  }, [otherPlayers]); 
+  useEffect(() => {}, [otherPlayers]);
 
   return (
     <div className="w-screen h-screen">
