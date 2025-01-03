@@ -16,3 +16,17 @@ export const drawCharacter = (ctx: CanvasRenderingContext2D, playerSprite:HTMLIm
       playerSprite.height 
     );
 }
+
+export const drawPlayer = (ctx: CanvasRenderingContext2D, playerSprite:HTMLImageElement, x:number, y:number, frame:number)=>{
+    ctx.drawImage(
+      playerSprite,
+      frame * 48, 
+      0,
+      playerSprite.width / 4, 
+      playerSprite.height, 
+      x, 
+      y, 
+      playerSprite.width / 4,
+      playerSprite.height 
+    );
+}

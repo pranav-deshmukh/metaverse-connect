@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
@@ -13,30 +14,8 @@ const Map = () => {
     y = -1140;
 
   const [socketId, setSocketId] = useState<string | null>(null);
-  const [roomData, setRoomData] = useState("");
+  const [roomData, setRoomData] = useState<Record<string, string[]>>({});
   const socketRef = useRef<Socket | null>(null);
-  let userChar;
-
-  useEffect(() => {
-    const sc = io("http://localhost:8000");
-    socketRef.current = sc;
-
-    sc.on("connect", () => {
-      setSocketId(sc.id);
-      console.log("Connected with socket ID:", sc.id);
-      sc.emit("join", 1234);
-      sc.on("rooms", (data) => {
-        console.log("room", data[1234]);
-        setRoomData(data);
-      });
-    });
-
-    return () => {
-      console.log("remove", sc.id);
-      sc.emit("remove");
-      sc.close();
-    };
-  }, []);
 
   const [movement, setMovement] = useState([x, y]);
 
@@ -57,6 +36,36 @@ const Map = () => {
   let backgroundImage: HTMLImageElement;
   let playerSprite: HTMLImageElement;
 
+  // Handle Socket Connection
+  useEffect(() => {
+    const sc = io("http://localhost:8000");
+    socketRef.current = sc;
+
+    sc.on("connect", () => {
+      setSocketId(sc.id);
+      console.log("Connected with socket ID:", sc.id);
+      sc.emit("join", 1234);
+
+      sc.on("rooms", (data) => {
+        console.log("Room data received directly:", data); // Log received data directly
+        setRoomData((prevData) => ({ ...prevData, ...data }));
+        // Update state with received data
+      });
+    });
+
+    return () => {
+      console.log("Removing socket:", sc.id);
+      sc.emit("remove");
+      sc.close();
+    };
+  }, []);
+
+  // Log updated roomData whenever it changes
+  useEffect(() => {
+    console.log("Updated roomData:", roomData);
+  }, [roomData]);
+
+  // Handle Keyboard Input
   useEffect(() => {
     backgroundImage = new window.Image();
     playerSprite = new window.Image();
@@ -87,6 +96,7 @@ const Map = () => {
     };
   }, []);
 
+  // Handle Animation
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -123,27 +133,9 @@ const Map = () => {
 
       if (context && canvas) {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        
-        if (backgroundImage.complete) {
-          drawMap(context, backgroundImage, x, y);
-        }
-        
-        for (let index = 0; index < 5; index++) {
 
-          const canvasX = 512 + (-1132 - index*50 - x);
-          const canvasY = 288 + (-1130 - index*50 - y);
-          
-          context.beginPath();
-          context.arc(
-            canvasX + Math.random(),
-            canvasY + Math.random(),
-            10,
-            0,
-            Math.PI * 2
-          );
-          context.fillStyle = "red";
-          context.fill();
-          context.closePath();
+        if (backgroundImage.complete) {
+          // drawMap(context, backgroundImage, x, y);
         }
 
         if (playerSprite.complete) {
@@ -160,19 +152,35 @@ const Map = () => {
     animate();
   }, []);
 
- 
+  // Handle Movement Data from Server
   useEffect(() => {
     if (!socketRef.current) return;
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
 
     socketRef.current.on("movement data", (data) => {
-      // console.log(roomData)
-      // console.log("Movement data received:", data);
+      if (!context) return; // Safeguard against null or undefined context
+      console.log("Current movement:", data);
+
+      if (roomData[1234]) {
+        for (let index = 0; index < roomData[1234].length; index++) {
+          const user = data;
+          // Assuming roomData contains objects with x and y properties
+          if (user.x !== undefined && user.y !== undefined) {
+            context.beginPath();
+            context.arc(user.x, user.y, 10, 0, Math.PI * 2);
+            context.fillStyle = "red";
+            context.fill();
+            context.closePath();
+          }
+        }
+      }
     });
 
     return () => {
       socketRef.current?.off("movement data");
     };
-  }, []);
+  }, [roomData]);
 
   return (
     <div className="w-screen h-screen">
