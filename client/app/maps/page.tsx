@@ -8,10 +8,15 @@ let moving = false;
 const MapsPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
-  const [roomData, setRoomData] = useState<Record<string, string[]>>({});
+  const [roomData, setRoomData] = useState<{
+    [roomId: string]: {
+      [socketId: string]: { x: number; y: number };
+    };
+  }>({});
   const socketRef = useRef<Socket | null>(null);
-  const [otherPlayers, setOtherPlayers] = useState<{[key: string]: {x: number, y: number}}>({});
-  
+  const [otherPlayers, setOtherPlayers] = useState<{
+    [key: string]: { x: number; y: number };
+  }>({});
 
   const positionRef = useRef({ x: -1185, y: -1140 });
 
@@ -37,20 +42,37 @@ const MapsPage: React.FC = () => {
 
     sc.on("rooms", (data) => {
       console.log("Room data received directly:", data);
-      setRoomData((prevData) => ({ ...prevData, ...data }));
+
+      const formattedData = Object.keys(data).reduce((acc, roomId) => {
+        acc[roomId] = data[roomId].reduce(
+          (socketsAcc: any, socketId: string) => {
+            socketsAcc[socketId] = { x: 0, y: 0 }; // Default values for x and y
+            return socketsAcc;
+          },
+          {}
+        );
+        return acc;
+      }, {});
+
+      console.log("Formatted room data:", formattedData);
+
+      setRoomData((prevData) => ({
+        ...prevData,
+        ...formattedData,
+      }));
     });
 
     sc.on("movement data", (data) => {
       // console.log("Received movement data:", data);
       if (data.socketId !== sc.id) {
-        console.log("Received movement data:", data);
-        setOtherPlayers(prev => ({
+        // console.log("Received movement data:", data);
+        // console.log("roomData", roomData);
+        setOtherPlayers((prev) => ({
           ...prev,
-          [data.socketId]: { x: data.x, y: data.y }
+          [data.socketId]: { x: data.x, y: data.y },
         }));
       }
       // console.log('other',otherPlayers);
-      
     });
 
     return () => {
@@ -89,7 +111,12 @@ const MapsPage: React.FC = () => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
 
-    function drawGrid(context: CanvasRenderingContext2D, offsetX: number, offsetY: number, gridSize: number) {
+    function drawGrid(
+      context: CanvasRenderingContext2D,
+      offsetX: number,
+      offsetY: number,
+      gridSize: number
+    ) {
       if (!context || !canvas) return;
 
       context.strokeStyle = "#000";
@@ -150,36 +177,28 @@ const MapsPage: React.FC = () => {
 
       // Clear canvas
       context.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw grid with current offset
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
-      
+
       // Draw current player (blue) in center
       context.beginPath();
-      context.arc(
-        canvas.width / 2,
-        canvas.height / 2,
-        10,
-        0,
-        Math.PI * 2
-      );
+      context.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
       context.fillStyle = "blue";
       context.fill();
-      
-      
-      Object.values(otherPlayers).forEach(player => {
-        // console.log('player',player);
+
+      Object.values(otherPlayers).forEach((player) => {
+        if (roomData[1234] && roomData[1234][socketId]) {
+          roomData[1234][socketId].x = player.x;
+          roomData[1234][socketId].y = player.y;
+        }
+        console.log("player", roomData);
         const relativeX = canvas.width / 2 + (player.x - positionRef.current.x);
-        const relativeY = canvas.height / 2 + (player.y - positionRef.current.y);
-        
+        const relativeY =
+          canvas.height / 2 + (player.y - positionRef.current.y);
+
         context.beginPath();
-        context.arc(
-          relativeX,
-          relativeY,
-          10,
-          0,
-          Math.PI * 2
-        );
+        context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
         context.fillStyle = "red";
         context.fill();
       });
@@ -187,7 +206,7 @@ const MapsPage: React.FC = () => {
 
     animate();
   }, [otherPlayers]);
-  
+
   useEffect(() => {}, [otherPlayers]);
 
   return (
