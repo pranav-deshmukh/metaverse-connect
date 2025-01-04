@@ -193,19 +193,31 @@ const MapsPage: React.FC = () => {
           roomData[1234][socketId].y = player.y;
         }
         console.log("player", roomData);
+        // const relativeX = canvas.width / 2 + (player.x - positionRef.current.x);
+        // const relativeY =
+        //   canvas.height / 2 + (player.y - positionRef.current.y);
+
+        // context.beginPath();
+        // context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
+        // context.fillStyle = "red";
+        // context.fill();
+      });
+      if(roomData[1234] && roomData[1234][socketId]){
+      Object.values(roomData[1234]).forEach((player) => {
         const relativeX = canvas.width / 2 + (player.x - positionRef.current.x);
         const relativeY =
           canvas.height / 2 + (player.y - positionRef.current.y);
 
         context.beginPath();
         context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
-        context.fillStyle = "red";
+        context.fillStyle = "green";
         context.fill();
       });
     }
+  }
 
     animate();
-  }, [otherPlayers]);
+  }, [otherPlayers, roomData]);
 
   useEffect(() => {}, [otherPlayers]);
 
