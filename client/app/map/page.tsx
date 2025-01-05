@@ -135,7 +135,7 @@ const Map = () => {
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         if (backgroundImage.complete) {
-          // drawMap(context, backgroundImage, x, y);
+          drawMap(context, backgroundImage, x, y);
         }
 
         if (playerSprite.complete) {

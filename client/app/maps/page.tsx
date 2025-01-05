@@ -2,10 +2,16 @@
 import React from "react";
 import { useRef, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import mapImage from "@/public/map1.png";
+import playerImage from "@/public/playerDown.png";
+import { drawCharacter, drawMap } from "@/utils/draw";
+import {backgroundImage, playerSprite} from "@/utils/draw";
 
 let moving = false;
 
 const MapsPage: React.FC = () => {
+  let x = -1185,
+    y = -1140;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [roomData, setRoomData] = useState<{
@@ -24,7 +30,11 @@ const MapsPage: React.FC = () => {
   };
 
   let lastKey = "";
-  const speed = 3;
+  const speed = 0.5;
+  let frame = 0;
+  let animationCounter = 0;
+
+  
 
   useEffect(() => {
     // Initialize the socket connection
@@ -60,7 +70,6 @@ const MapsPage: React.FC = () => {
       }));
     });
 
-   
     sc.on("movement data", (data) => {
       setRoomData((prevRoomData) => {
         const room = prevRoomData[1234] || {};
@@ -90,6 +99,7 @@ const MapsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (keys[e.key as keyof typeof keys]) {
         keys[e.key as keyof typeof keys].pressed = true;
@@ -169,7 +179,6 @@ const MapsPage: React.FC = () => {
         positionRef.current.x -= speed;
         updated = true;
       }
-
       if (updated) {
         socketRef.current?.emit("movement", {
           x: positionRef.current.x,
@@ -178,9 +187,16 @@ const MapsPage: React.FC = () => {
         });
       }
 
+      animationCounter++;
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
+      if (backgroundImage.complete) {
+        drawMap(context, backgroundImage, positionRef.current.x, positionRef.current.y);
+      }
+      if (playerSprite.complete) {
+          drawCharacter(context, playerSprite, frame);
+        }
 
       context.beginPath();
       context.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
@@ -189,7 +205,7 @@ const MapsPage: React.FC = () => {
 
       if (roomData[1234]) {
         Object.entries(roomData[1234]).forEach(([id, player]) => {
-          if (id === socketId) return; 
+          if (id === socketId) return;
 
           const relativeX =
             canvas.width / 2 + (player.x - positionRef.current.x);
@@ -202,6 +218,10 @@ const MapsPage: React.FC = () => {
           context.fill();
         });
       }
+      if (!moving) return;
+      if (animationCounter % 40 === 0) {
+        frame = (frame + 1) % 4;
+      }
 
       console.log("Room Data:", roomData);
     }
@@ -212,15 +232,13 @@ const MapsPage: React.FC = () => {
   return (
     <div className="w-screen h-screen">
       <canvas ref={canvasRef} width={1024} height={576} className="border" />
-      {
-        Object.entries(roomData[1234] || {}).map(([id, player]) => (
-          <div key={id}>
-            <p>Socket ID: {id}</p>
-            <p>X: {player.x}</p>
-            <p>Y: {player.y}</p>
-          </div>
-        ))
-      }
+      {Object.entries(roomData[1234] || {}).map(([id, player]) => (
+        <div key={id}>
+          <p>Socket ID: {id}</p>
+          <p>X: {player.x}</p>
+          <p>Y: {player.y}</p>
+        </div>
+      ))}
     </div>
   );
 };
