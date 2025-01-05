@@ -212,6 +212,15 @@ const MapsPage: React.FC = () => {
   return (
     <div className="w-screen h-screen">
       <canvas ref={canvasRef} width={1024} height={576} className="border" />
+      {
+        Object.entries(roomData[1234] || {}).map(([id, player]) => (
+          <div key={id}>
+            <p>Socket ID: {id}</p>
+            <p>X: {player.x}</p>
+            <p>Y: {player.y}</p>
+          </div>
+        ))
+      }
     </div>
   );
 };
