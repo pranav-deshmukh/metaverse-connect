@@ -14,10 +14,6 @@ const MapsPage: React.FC = () => {
     };
   }>({});
   const socketRef = useRef<Socket | null>(null);
-  const [otherPlayers, setOtherPlayers] = useState<{
-    [key: string]: { x: number; y: number };
-  }>({});
-
   const positionRef = useRef({ x: -1185, y: -1140 });
 
   let keys = {
@@ -31,22 +27,26 @@ const MapsPage: React.FC = () => {
   const speed = 3;
 
   useEffect(() => {
+    // Initialize the socket connection
     const sc = io("http://localhost:8000");
     socketRef.current = sc;
 
     sc.on("connect", () => {
       setSocketId(sc.id);
       console.log("Connected with socket ID:", sc.id);
+
+      // Join a room
       sc.emit("join", 1234);
     });
 
+    // Handle room updates
     sc.on("rooms", (data) => {
       console.log("Room data received directly:", data);
 
       const formattedData = Object.keys(data).reduce((acc, roomId) => {
         acc[roomId] = data[roomId].reduce(
           (socketsAcc: any, socketId: string) => {
-            socketsAcc[socketId] = { x: 0, y: 0 }; // Default values for x and y
+            socketsAcc[socketId] = { x: 0, y: 0 };
             return socketsAcc;
           },
           {}
@@ -54,29 +54,36 @@ const MapsPage: React.FC = () => {
         return acc;
       }, {});
 
-      console.log("Formatted room data:", formattedData);
-
       setRoomData((prevData) => ({
         ...prevData,
         ...formattedData,
       }));
     });
 
+   
     sc.on("movement data", (data) => {
-      // console.log("Received movement data:", data);
-      if (data.socketId !== sc.id) {
-        // console.log("Received movement data:", data);
-        // console.log("roomData", roomData);
-        setOtherPlayers((prev) => ({
-          ...prev,
-          [data.socketId]: { x: data.x, y: data.y },
-        }));
-      }
-      // console.log('other',otherPlayers);
+      setRoomData((prevRoomData) => {
+        const room = prevRoomData[1234] || {};
+        room[data.socketId] = { x: data.x, y: data.y };
+        return {
+          ...prevRoomData,
+          1234: room,
+        };
+      });
+    });
+
+    sc.on("playerDisconnected", (disconnectedSocketId) => {
+      console.log("Player disconnected:", disconnectedSocketId);
+      setRoomData((prevRoomData) => {
+        const updatedRoomData = { ...prevRoomData };
+        if (updatedRoomData[1234]) {
+          delete updatedRoomData[1234][disconnectedSocketId];
+        }
+        return updatedRoomData;
+      });
     });
 
     return () => {
-      console.log("Removing socket:", sc.id);
       sc.emit("remove");
       sc.close();
     };
@@ -122,11 +129,9 @@ const MapsPage: React.FC = () => {
       context.strokeStyle = "#000";
       context.lineWidth = 0.5;
 
-      // Calculate grid lines based on offset
       const startX = offsetX % gridSize;
       const startY = offsetY % gridSize;
 
-      // Draw vertical lines
       for (let i = startX; i <= canvas.width; i += gridSize) {
         context.beginPath();
         context.moveTo(i, 0);
@@ -134,7 +139,6 @@ const MapsPage: React.FC = () => {
         context.stroke();
       }
 
-      // Draw horizontal lines
       for (let i = startY; i <= canvas.height; i += gridSize) {
         context.beginPath();
         context.moveTo(0, i);
@@ -148,7 +152,6 @@ const MapsPage: React.FC = () => {
       window.requestAnimationFrame(animate);
 
       let updated = false;
-      const { x, y } = positionRef.current;
 
       if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
         positionRef.current.y += speed;
@@ -175,51 +178,36 @@ const MapsPage: React.FC = () => {
         });
       }
 
-      // Clear canvas
       context.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid with current offset
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
 
-      // Draw current player (blue) in center
       context.beginPath();
       context.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
       context.fillStyle = "blue";
       context.fill();
 
-      Object.values(otherPlayers).forEach((player) => {
-        if (roomData[1234] && roomData[1234][socketId]) {
-          roomData[1234][socketId].x = player.x;
-          roomData[1234][socketId].y = player.y;
-        }
-        console.log("player", roomData);
-        // const relativeX = canvas.width / 2 + (player.x - positionRef.current.x);
-        // const relativeY =
-        //   canvas.height / 2 + (player.y - positionRef.current.y);
+      if (roomData[1234]) {
+        Object.entries(roomData[1234]).forEach(([id, player]) => {
+          if (id === socketId) return; 
 
-        // context.beginPath();
-        // context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
-        // context.fillStyle = "red";
-        // context.fill();
-      });
-      if(roomData[1234] && roomData[1234][socketId]){
-      Object.values(roomData[1234]).forEach((player) => {
-        const relativeX = canvas.width / 2 + (player.x - positionRef.current.x);
-        const relativeY =
-          canvas.height / 2 + (player.y - positionRef.current.y);
+          const relativeX =
+            canvas.width / 2 + (player.x - positionRef.current.x);
+          const relativeY =
+            canvas.height / 2 + (player.y - positionRef.current.y);
 
-        context.beginPath();
-        context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
-        context.fillStyle = "green";
-        context.fill();
-      });
+          context.beginPath();
+          context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
+          context.fillStyle = "red";
+          context.fill();
+        });
+      }
+
+      console.log("Room Data:", roomData);
     }
-  }
 
     animate();
-  }, [otherPlayers, roomData]);
-
-  useEffect(() => {}, [otherPlayers]);
+  }, [roomData, socketId]);
 
   return (
     <div className="w-screen h-screen">
