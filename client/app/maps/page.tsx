@@ -197,7 +197,7 @@ const MapsPage: React.FC = () => {
         );
       }
       if (playerSprite.complete) {
-        drawCharacter(context, playerSprite, frame);
+        drawCharacter(context, playerSprite, frame, positionRef.current.x, positionRef.current.y);
       }
 
       // context.beginPath();
@@ -210,9 +210,9 @@ const MapsPage: React.FC = () => {
           if (id === socketId) return;
 
           const relativeX =
-            canvas.width / 2 + (player.x +500);
+            canvas.width / 2 + (player.x +505);
           const relativeY =
-            canvas.height / 2 + (player.y +500);
+            canvas.height / 2 + (player.y +310);
 
           context.beginPath();
           context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);

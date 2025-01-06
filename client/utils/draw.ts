@@ -14,7 +14,9 @@ export const drawMap = (
 export const drawCharacter = (
   ctx: CanvasRenderingContext2D,
   playerSprite: HTMLImageElement,
-  frame: number
+  frame: number,
+  x: number,
+  y: number
 ) => {
   ctx.drawImage(
     playerSprite,
@@ -22,8 +24,8 @@ export const drawCharacter = (
     0,
     playerSprite.width / 4,
     playerSprite.height,
-    ctx.canvas.width / 2 - playerSprite.width / 4,
-    ctx.canvas.height / 2 - playerSprite.height,
+    ctx.canvas.width / 2  + (x +505),
+    ctx.canvas.height / 2 + (y +310),
     playerSprite.width / 4,
     playerSprite.height
   );
