@@ -8,7 +8,7 @@ export const drawMap = (
   y: number
 ) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.drawImage(backgroundImage, x, y, 3500, 2500);
+  ctx.drawImage(backgroundImage, x, y, 1500, 1800);
 };
 
 export const drawCharacter = (

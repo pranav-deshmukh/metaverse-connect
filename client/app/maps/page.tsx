@@ -5,13 +5,13 @@ import { io, Socket } from "socket.io-client";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
-import {backgroundImage, playerSprite} from "@/utils/draw";
+import { backgroundImage, playerSprite } from "@/utils/draw";
 
 let moving = false;
 
 const MapsPage: React.FC = () => {
-  let x = -1185,
-    y = -1140;
+  let x = -505,
+    y = -310;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [roomData, setRoomData] = useState<{
@@ -20,7 +20,7 @@ const MapsPage: React.FC = () => {
     };
   }>({});
   const socketRef = useRef<Socket | null>(null);
-  const positionRef = useRef({ x: -1185, y: -1140 });
+  const positionRef = useRef({ x: -505, y: -310 });
 
   let keys = {
     ArrowUp: { pressed: false },
@@ -30,11 +30,9 @@ const MapsPage: React.FC = () => {
   };
 
   let lastKey = "";
-  const speed = 0.5;
+  const speed = 1;
   let frame = 0;
   let animationCounter = 0;
-
-  
 
   useEffect(() => {
     // Initialize the socket connection
@@ -99,7 +97,6 @@ const MapsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (keys[e.key as keyof typeof keys]) {
         keys[e.key as keyof typeof keys].pressed = true;
@@ -192,25 +189,30 @@ const MapsPage: React.FC = () => {
 
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
-        drawMap(context, backgroundImage, positionRef.current.x, positionRef.current.y);
+        drawMap(
+          context,
+          backgroundImage,
+          x,
+          y
+        );
       }
       if (playerSprite.complete) {
-          drawCharacter(context, playerSprite, frame);
-        }
+        drawCharacter(context, playerSprite, frame);
+      }
 
-      context.beginPath();
-      context.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
-      context.fillStyle = "blue";
-      context.fill();
+      // context.beginPath();
+      // context.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
+      // context.fillStyle = "blue";
+      // context.fill();
 
       if (roomData[1234]) {
         Object.entries(roomData[1234]).forEach(([id, player]) => {
           if (id === socketId) return;
 
           const relativeX =
-            canvas.width / 2 + (player.x - positionRef.current.x);
+            canvas.width / 2 + (player.x +500);
           const relativeY =
-            canvas.height / 2 + (player.y - positionRef.current.y);
+            canvas.height / 2 + (player.y +500);
 
           context.beginPath();
           context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
