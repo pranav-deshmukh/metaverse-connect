@@ -208,16 +208,17 @@ const MapsPage: React.FC = () => {
       if (roomData[1234]) {
         Object.entries(roomData[1234]).forEach(([id, player]) => {
           if (id === socketId) return;
+          drawCharacter(context, playerSprite, frame, player.x, player.y);
+          
+          // const relativeX =
+          //   canvas.width / 2 + (player.x +505);
+          // const relativeY =
+          //   canvas.height / 2 + (player.y +310);
 
-          const relativeX =
-            canvas.width / 2 + (player.x +505);
-          const relativeY =
-            canvas.height / 2 + (player.y +310);
-
-          context.beginPath();
-          context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
-          context.fillStyle = "red";
-          context.fill();
+          // context.beginPath();
+          // context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
+          // context.fillStyle = "red";
+          // context.fill();
         });
       }
       if (!moving) return;
