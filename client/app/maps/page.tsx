@@ -189,15 +189,23 @@ const MapsPage: React.FC = () => {
 
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
-        drawMap(
-          context,
-          backgroundImage,
-          x,
-          y
-        );
+        drawMap(context, backgroundImage, x, y);
       }
       if (playerSprite.complete) {
-        drawCharacter(context, playerSprite, frame, positionRef.current.x, positionRef.current.y);
+        drawCharacter(
+          context,
+          playerSprite,
+          frame,
+          positionRef.current.x,
+          positionRef.current.y
+        );
+        context.font = "10px Arial";
+        context.fillStyle = "purple";
+        context.fillText(
+          "Hello World",
+          context.canvas.width / 2 + positionRef.current.x + 500,
+          context.canvas.width / 2 + positionRef.current.y + 160
+        );
       }
 
       // context.beginPath();
@@ -209,7 +217,14 @@ const MapsPage: React.FC = () => {
         Object.entries(roomData[1234]).forEach(([id, player]) => {
           if (id === socketId) return;
           drawCharacter(context, playerSprite, frame, player.x, player.y);
-          
+          context.font = "10px Arial";
+          context.fillStyle = "purple";
+          context.fillText(
+            id,
+            context.canvas.width / 2 + player.x + 500,
+            context.canvas.width / 2 + player.y + 160
+          );
+
           // const relativeX =
           //   canvas.width / 2 + (player.x +505);
           // const relativeY =
