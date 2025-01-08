@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { MapIcon, Users, Plus, Home, Calendar } from "lucide-react";
 import FloatingPixels from "@/components/FloatingPixels";
+import MapTry from '@/public/MapTry.png'
+import Image from "next/image";
 
 const Dashboard = () => {
   const [selectedMap, setSelectedMap] = useState(null);
@@ -11,14 +13,14 @@ const Dashboard = () => {
     {
       id: 1,
       title: "Office Campus",
-      thumbnail: "/api/placeholder/300/200",
+      thumbnail: MapTry,
       visitors: 120,
       description: "A modern office space with meeting rooms and gardens",
     },
     {
       id: 2,
       title: "Park Plaza",
-      thumbnail: "/api/placeholder/300/200",
+      thumbnail: MapTry,
       visitors: 85,
       description: "Open area with fountains and recreational zones",
     },
@@ -53,7 +55,7 @@ const Dashboard = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedMap(map.id)}
             >
-              <img
+              <Image
                 src={map.thumbnail}
                 alt={map.title}
                 className="w-full h-48 object-cover"
