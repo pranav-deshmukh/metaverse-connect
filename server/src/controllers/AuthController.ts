@@ -22,7 +22,7 @@ export const signUp = async(req:Request,res:Response)=>{
         const newUser = await User.create({
             username,email,password
         })
-        createSendToken(newUser, 201, res);
+        createSendToken(newUser, 200, res);
     } catch (error:MongooseError|any) {
         return res.status(400).json({ status: "fail", message: error.message });
     }

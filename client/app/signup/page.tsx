@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { motion } from 'framer-motion';
-import { Mail, Lock, User, KeyRound } from 'lucide-react';
+import { set, z } from "zod";
+import { motion } from "framer-motion";
+import { Mail, Lock, User, KeyRound } from "lucide-react";
 import Link from "next/link";
 import formSchema from "@/utils/signupSchema";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -34,27 +35,27 @@ const PixelEffect = () => {
   useEffect(() => {
     setDimensions({
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     });
 
     const handleResize = () => {
       setDimensions({
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
       });
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
-        <motion.div 
+        <motion.div
           key={i}
           className="absolute w-2 h-2 bg-emerald-400/20"
-          initial={{ 
+          initial={{
             x: Math.random() * dimensions.width,
             y: Math.random() * dimensions.height,
           }}
@@ -66,7 +67,7 @@ const PixelEffect = () => {
             duration: Math.random() * 3 + 2,
             repeat: Infinity,
             repeatType: "reverse",
-            ease: "linear"
+            ease: "linear",
           }}
         />
       ))}
@@ -75,6 +76,8 @@ const PixelEffect = () => {
 };
 
 export default function SignUp() {
+  const router = useRouter();
+  const [loader, setloader] = useState(false);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,15 +88,21 @@ export default function SignUp() {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     console.log("Form submitted:", data);
-    signUpFunc(data);
+    const response = await signUpFunc(data);
+    setloader(true);
+    if (response.status === 200) {
+      console.log("resp", response.status);
+      router.push("/dashboard");
+    }
+    setloader(false);
   };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-blue-900 flex flex-col justify-center items-center p-4 relative overflow-hidden">
       <PixelEffect />
-      
+
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -101,9 +110,9 @@ export default function SignUp() {
         className="w-full max-w-md relative"
       >
         <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-lg rounded-2xl border border-gray-700" />
-        
+
         <div className="relative p-8 space-y-6">
-          <motion.div 
+          <motion.div
             className="text-center space-y-2"
             initial={{ y: -20 }}
             animate={{ y: 0 }}
@@ -129,11 +138,14 @@ export default function SignUp() {
                       <FormLabel className="text-gray-200">Username</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                          <Input 
+                          <User
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={18}
+                          />
+                          <Input
                             className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-emerald-500"
-                            placeholder="Choose your username" 
-                            {...field} 
+                            placeholder="Choose your username"
+                            {...field}
                           />
                         </div>
                       </FormControl>
@@ -156,12 +168,15 @@ export default function SignUp() {
                       <FormLabel className="text-gray-200">Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                          <Input 
+                          <Mail
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={18}
+                          />
+                          <Input
                             className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-emerald-500"
-                            type="email" 
-                            placeholder="Enter your email" 
-                            {...field} 
+                            type="email"
+                            placeholder="Enter your email"
+                            {...field}
                           />
                         </div>
                       </FormControl>
@@ -184,7 +199,10 @@ export default function SignUp() {
                       <FormLabel className="text-gray-200">Password</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                          <Lock
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={18}
+                          />
                           <Input
                             className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-emerald-500"
                             type="password"
@@ -209,10 +227,15 @@ export default function SignUp() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-200">Confirm Password</FormLabel>
+                      <FormLabel className="text-gray-200">
+                        Confirm Password
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <KeyRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                          <KeyRound
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={18}
+                          />
                           <Input
                             className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-emerald-500"
                             type="password"
@@ -233,7 +256,7 @@ export default function SignUp() {
                 transition={{ delay: 0.6 }}
                 className="space-y-4"
               >
-                <Link 
+                <Link
                   className="block text-sm text-gray-400 hover:text-gray-300 transition-colors text-center"
                   href="/login"
                 >
@@ -244,11 +267,23 @@ export default function SignUp() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Button 
+                  <Button
                     type="submit"
                     className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white py-6 rounded-lg font-medium"
                   >
                     Start Your Journey
+                    {loader ? (
+                      <div className="flex justify-center items-center">
+                        <motion.div
+                          className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                        />
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </Button>
                 </motion.div>
               </motion.div>
