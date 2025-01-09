@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { MapIcon, Users, Plus, Home, Calendar } from "lucide-react";
 import FloatingPixels from "@/components/FloatingPixels";
-import MapTry from '@/public/MapTry.png'
+import MapTry from "@/public/MapTry.png";
 import Image from "next/image";
+import axios from "axios";
 
 const Dashboard = () => {
   const [selectedMap, setSelectedMap] = useState(null);
@@ -26,6 +27,19 @@ const Dashboard = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("jwt");
+        const response = await axios.post("http://localhost:8000/api/v1/users/getUser", {token:token});
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a] ">
       <FloatingPixels />
@@ -44,7 +58,9 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-8">Explore Your Spaces</h1>
+        <h1 className="text-4xl font-bold text-white mb-8">
+          Explore Your Spaces
+        </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {maps.map((map) => (
@@ -61,7 +77,9 @@ const Dashboard = () => {
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
-                <h3 className="text-2xl font-semibold text-white mb-2">{map.title}</h3>
+                <h3 className="text-2xl font-semibold text-white mb-2">
+                  {map.title}
+                </h3>
                 <p className="text-gray-300 mb-4">{map.description}</p>
                 <div className="flex items-center text-gray-400">
                   <Users className="w-5 h-5 mr-2" />
