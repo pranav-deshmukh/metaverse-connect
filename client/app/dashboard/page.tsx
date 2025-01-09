@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MapIcon, Users, Plus, Home, Calendar } from "lucide-react";
 import FloatingPixels from "@/components/FloatingPixels";
 import MapTry from "@/public/MapTry.png";
@@ -9,6 +9,8 @@ import axios from "axios";
 
 const Dashboard = () => {
   const [selectedMap, setSelectedMap] = useState(null);
+  const [username, setUsername] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const maps = [
     {
@@ -31,8 +33,8 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("jwt");
-        const response = await axios.post("http://localhost:8000/api/v1/users/getUser", {token:token});
-        console.log(response.data);
+        const response = await axios.post("http://localhost:8000/api/v1/users/getUser", { token });
+        setUsername(response.data.name);
       } catch (error) {
         console.log(error);
       }
@@ -41,22 +43,50 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a] ">
+    <div className="min-h-screen w-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a]">
       <FloatingPixels />
-      {/* Navigation Bar */}
       <nav className="flex justify-between items-center mb-8 bg-[#171f2b] p-3 rounded-xl shadow-lg">
         <div className="flex items-center space-x-6">
           <Home className="w-8 h-8 text-white hover:text-emerald-400 cursor-pointer transition-colors" />
           <Calendar className="w-8 h-8 text-white hover:text-emerald-400 cursor-pointer transition-colors" />
           <MapIcon className="w-8 h-8 text-white hover:text-emerald-400 cursor-pointer transition-colors" />
         </div>
-        <button className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-5 py-2 rounded-lg flex items-center space-x-2 shadow-lg hover:shadow-xl transition-transform transform hover:scale-105">
-          <Plus className="w-5 h-5" />
-          <span>Create Space</span>
-        </button>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <motion.div
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              whileHover={{ scale: 1.05 }}
+            >
+              <span className="font-semibold">{username || "Loading..."}</span>
+            </motion.div>
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute mt-2 right-0 bg-[#1e293b] text-white rounded-lg shadow-lg w-48 p-3"
+                >
+                  <div
+                    className="hover:bg-gray-700 px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => alert("Viewing Profile")}
+                  >
+                    View Profile
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <button className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-5 py-2 rounded-lg flex items-center space-x-2 shadow-lg hover:shadow-xl transition-transform transform hover:scale-105">
+            <Plus className="w-5 h-5" />
+            <span>Create Space</span>
+          </button>
+        </div>
       </nav>
 
-      {/* Main Content */}
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-white mb-8">
           Explore Your Spaces
@@ -91,7 +121,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {selectedMap && (
         <motion.div
           initial={{ opacity: 0 }}
