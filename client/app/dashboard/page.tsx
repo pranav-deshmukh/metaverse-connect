@@ -12,8 +12,9 @@ const Dashboard = () => {
   const [username, setUsername] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [spaceType, setSpaceType] = useState('');
+  const [spaceType, setSpaceType] = useState("");
   const [modalNo, setModalNo] = useState(1);
+  const [mapType, setMapType] = useState(0);
 
   const maps = [
     {
@@ -36,7 +37,10 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("jwt");
-        const response = await axios.post("http://localhost:8000/api/v1/users/getUser", { token });
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/users/getUser",
+          { token }
+        );
         setUsername(response.data.name);
       } catch (error) {
         console.log(error);
@@ -45,44 +49,59 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const renderModalNo=(modalNo:number)=>{
-    if(modalNo===1){
+  const renderModalNo = (modalNo: number) => {
+    if (modalNo === 1) {
       return (
         <>
-        <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
-            <p className="text-gray-300 mb-6">
-              Choose whether this space is public or private.
-            </p>
-            <div className="flex flex-col justify-between mb-6 gap-4">
-              <button
-                className={`px-4 py-2 rounded-lg ${
-                  spaceType === "public"
-                    ? "bg-emerald-500 text-white"
-                    : "bg-white/20 text-gray-300"
-                } hover:bg-emerald-500 hover:text-white transition-colors`}
-                onClick={() => setSpaceType("public")}
-              >
-                Public
-              </button>
-              <button
-                className={`px-4 py-2 rounded-lg ${
-                  spaceType === "private"
-                    ? "bg-emerald-500 text-white"
-                    : "bg-white/20 text-gray-300"
-                } hover:bg-emerald-500 hover:text-white transition-colors`}
-                onClick={() => setSpaceType("private")}
-              >
-                Private
-              </button>
-            </div>
-            </>
-      )
-    }else if(modalNo===2){
-      return(
-        <div>Hello</div>
-      )
+          <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
+          <p className="text-gray-300 mb-6">
+            Choose whether this space is public or private.
+          </p>
+          <div className="flex flex-col justify-between mb-6 gap-4">
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                spaceType === "public"
+                  ? "bg-emerald-500 text-white"
+                  : "bg-white/20 text-gray-300"
+              } hover:bg-emerald-500 hover:text-white transition-colors`}
+              onClick={() => setSpaceType("public")}
+            >
+              Public
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                spaceType === "private"
+                  ? "bg-emerald-500 text-white"
+                  : "bg-white/20 text-gray-300"
+              } hover:bg-emerald-500 hover:text-white transition-colors`}
+              onClick={() => setSpaceType("private")}
+            >
+              Private
+            </button>
+          </div>
+        </>
+      );
+    } else if (modalNo === 2) {
+      return (
+        <>
+          <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
+          <p className="text-gray-300 mb-6">Choose map.</p>
+          <div className="flex flex-col justify-between mb-6 gap-4">
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                spaceType === "public"
+                  ? "bg-emerald-500 text-white"
+                  : "bg-white/20 text-gray-300"
+              } hover:bg-emerald-500 hover:text-white transition-colors`}
+              onClick={() => setMapType(1)}
+            >
+              Map1
+            </button>
+          </div>
+        </>
+      );
     }
-  }
+  };
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a]">
@@ -183,7 +202,9 @@ const Dashboard = () => {
             <div className="flex justify-between">
               <button
                 className="px-4 py-2 rounded-lg bg-white/20 text-gray-300 hover:bg-white/30 transition-colors"
-                onClick={()=>{setModalNo((modalNo)=>modalNo-1)}}
+                onClick={() => {
+                  setModalNo((modalNo) => modalNo - 1);
+                }}
               >
                 Back
               </button>
@@ -198,7 +219,6 @@ const Dashboard = () => {
             </div>
           </motion.div>
         </motion.div>
-        
       )}
     </div>
   );

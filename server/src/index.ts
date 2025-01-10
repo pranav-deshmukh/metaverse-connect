@@ -5,6 +5,7 @@ import { RoomManager } from "./RoomManager";
 import mongoose from "mongoose";
 import cors from "cors";
 import { router as AuthRouter } from "./routes/AuthRouter";
+import { router as MapRouter } from "./routes/MapRoutes";
 require("dotenv").config();
 
 const DB = process.env.DATABASE;
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/v1/users", AuthRouter);
+app.use("/api/v1/maps", MapRouter);
 
 io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
