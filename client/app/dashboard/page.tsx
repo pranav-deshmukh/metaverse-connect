@@ -47,19 +47,9 @@ const Dashboard = () => {
 
   const renderModalNo=(modalNo:number)=>{
     if(modalNo===1){
-      return (<motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center"
-          // onClick={() => setIsModalOpen(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="bg-gradient-to-r from-[#1f2937] to-[#334155] p-6 rounded-xl shadow-xl max-w-md w-full mx-4 text-white"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
+      return (
+        <>
+        <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
             <p className="text-gray-300 mb-6">
               Choose whether this space is public or private.
             </p>
@@ -85,25 +75,7 @@ const Dashboard = () => {
                 Private
               </button>
             </div>
-            <div className="flex justify-between">
-              <button
-                className="px-4 py-2 rounded-lg bg-white/20 text-gray-300 hover:bg-white/30 transition-colors"
-                onClick={()=>{setModalNo((modalNo)=>modalNo-1)}}
-              >
-                Back
-              </button>
-              <button
-                className="px-4 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
-                onClick={() => {
-                  setModalNo((modalNo) => modalNo + 1);
-                  renderModalNo(modalNo);
-                }}
-              >
-                Next
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
+            </>
       )
     }else if(modalNo===2){
       return(
@@ -195,7 +167,38 @@ const Dashboard = () => {
       </div>
 
       {isModalOpen && (
-        renderModalNo(modalNo)
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center"
+          // onClick={() => setIsModalOpen(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            className="bg-gradient-to-r from-[#1f2937] to-[#334155] p-6 rounded-xl shadow-xl max-w-md w-full mx-4 text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {renderModalNo(modalNo)}
+            <div className="flex justify-between">
+              <button
+                className="px-4 py-2 rounded-lg bg-white/20 text-gray-300 hover:bg-white/30 transition-colors"
+                onClick={()=>{setModalNo((modalNo)=>modalNo-1)}}
+              >
+                Back
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+                onClick={() => {
+                  setModalNo((modalNo) => modalNo + 1);
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+        
       )}
     </div>
   );
