@@ -13,8 +13,9 @@ const Dashboard = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [spaceType, setSpaceType] = useState("");
-  const [modalNo, setModalNo] = useState(1);
+  const [modalNo, setModalNo] = useState(0);
   const [mapType, setMapType] = useState(0);
+  const [mapName, setMapName] = useState("");
 
   const maps = [
     {
@@ -49,8 +50,41 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const handleCreateMap = async () => {
+    try {
+      const token = localStorage.getItem("jwt");
+      const mapData = {
+        mapType,
+        mapName,
+        players: { [username]: { x: 0, y: 0 } }, // Initial position for the user
+        admin: username,
+      };
+
+      await axios.post("http://localhost:8000/api/v1/maps/create", {
+        token,
+        ...mapData
+      });
+
+      // Reset form and close modal
+      setModalNo(0);
+      setIsModalOpen(false);
+      setMapName("");
+      setMapType(0);
+      setSpaceType("");
+      
+      // Optionally refresh the maps list
+      // You might want to add a function to fetch and update the maps list
+    } catch (error) {
+      console.error("Error creating map:", error);
+      // Add error handling as needed
+    }
+  };
+
   const renderModalNo = (modalNo: number) => {
-    if (modalNo === 1) {
+    if (modalNo === 0) {
+      setModalNo(0);
+      setIsModalOpen(false);
+    } else if (modalNo === 1) {
       return (
         <>
           <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
@@ -89,7 +123,7 @@ const Dashboard = () => {
           <div className="flex flex-col justify-between mb-6 gap-4">
             <button
               className={`px-4 py-2 rounded-lg ${
-                spaceType === "public"
+                mapType === 1
                   ? "bg-emerald-500 text-white"
                   : "bg-white/20 text-gray-300"
               } hover:bg-emerald-500 hover:text-white transition-colors`}
@@ -100,6 +134,24 @@ const Dashboard = () => {
           </div>
         </>
       );
+    } else if (modalNo === 3) {
+      return (
+        <>
+          <h2 className="text-2xl font-bold mb-4">Name Your Space</h2>
+          <p className="text-gray-300 mb-6">Give your new space a name.</p>
+          <div className="flex flex-col justify-between mb-6 gap-4">
+            <input
+              type="text"
+              value={mapName}
+              onChange={(e) => setMapName(e.target.value)}
+              placeholder="Enter space name"
+              className="px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+        </>
+      );
+    } else if (modalNo === 4) {
+      handleCreateMap();
     }
   };
 
@@ -143,7 +195,10 @@ const Dashboard = () => {
 
           <button
             className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-5 py-2 rounded-lg flex items-center space-x-2 shadow-lg hover:shadow-xl transition-transform transform hover:scale-105"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setModalNo(1);
+              setIsModalOpen(true);
+            }}
           >
             <Plus className="w-5 h-5" />
             <span>Create Space</span>
@@ -190,7 +245,6 @@ const Dashboard = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center"
-          // onClick={() => setIsModalOpen(false)}
         >
           <motion.div
             initial={{ scale: 0.9 }}

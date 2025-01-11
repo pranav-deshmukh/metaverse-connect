@@ -14,7 +14,11 @@ const mapSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    players:{}
+    players:{},
+    admin:{
+        type: String,
+        required: true,
+    }
 });
 
 export const Map = mongoose.model("Map", mapSchema);

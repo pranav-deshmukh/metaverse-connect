@@ -4,22 +4,26 @@ import { MongooseError } from "mongoose";
 
 export const createMap = async (req: Request, res: Response) => {
   try {
-    const { mapId, mapType, mapName, players } = req.body;
+    const { mapType, mapName, players, admin } = req.body;
     console.log(req.body);
+    const mapId = `${mapName.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`;
+    console.log(mapId);
     const newMap = await Map.create({
       mapId,
       mapType,
       mapName,
       players,
+      admin,
     });
+    console.log('MAP',newMap);
     res.status(201).json({
       status: 201,
       data: {
         newMap,
       },
-    message: "Map created successfully",
+      message: "Map created successfully",
     });
-  } catch (error:MongooseError | any) {
+  } catch (error: MongooseError | any) {
     return res.status(400).json({ status: "fail", message: error.message });
   }
-}
+};
