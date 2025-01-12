@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid"; 
 
 const mapSchema = new mongoose.Schema({
-    mapId:{
+    mapID:{
         type: String,
         required: true,
         unique: true,
+        default:uuidv4
     },
     mapType:{
         type: Number,
@@ -14,11 +16,24 @@ const mapSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    players:{},
-    admin:{
-        type: String,
+    spaceType:{
+        type:String,
         required: true,
-    }
+    },
+    players:{
+        type:Map,
+        of:Object,
+        default: new Map(),
+    },
+    admin:{
+        type:Map,
+        of:Object,
+        default: new Map(),
+    },
+
+},{
+    timestamps: true,
 });
 
-export const Map = mongoose.model("Map", mapSchema);
+
+export const MapM = mongoose.model("Map", mapSchema);
