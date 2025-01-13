@@ -6,6 +6,7 @@ import FloatingPixels from "@/components/FloatingPixels";
 import MapTry from "@/public/MapTry.png";
 import Image from "next/image";
 import axios from "axios";
+import { set } from "zod";
 
 const Dashboard = () => {
   const [selectedMap, setSelectedMap] = useState(null);
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [mapName, setMapName] = useState("");
   const [mapType, setMapType] = useState(0);
   const [userId, setUserId] = useState("");
+  const [fetchedMaps, setFetchedMaps] = useState([]);
   const maps = [
     {
       id: 1,
@@ -75,6 +77,19 @@ const Dashboard = () => {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    const fetchMaps = async () => {
+      try {
+        const maps = await axios.post("http://localhost:8000/api/v1/maps/getmaps");
+        console.log(maps.data.data.maps);
+        console.log(maps.data.message);
+        setFetchedMaps(maps.data.data.maps);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchMaps();
+  },[]);
 
   const renderModalNo = (modalNo: number) => {
     if (modalNo === 0) {
@@ -218,27 +233,27 @@ const Dashboard = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {maps.map((map) => (
+          {fetchedMaps.map((map) => (
             <motion.div
-              key={map.id}
+              key={map.mapID}
               className="bg-white/10 shadow-lg rounded-xl overflow-hidden backdrop-blur-md hover:bg-white/20 cursor-pointer transition-all"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedMap(map.id)}
+              onClick={() => setSelectedMap(map.mapID)}
             >
               <Image
-                src={map.thumbnail}
-                alt={map.title}
+                src={MapTry}
+                alt="Map"
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
                 <h3 className="text-2xl font-semibold text-white mb-2">
-                  {map.title}
+                  {map.mapName}
                 </h3>
-                <p className="text-gray-300 mb-4">{map.description}</p>
+                <p className="text-gray-300 mb-4">{map.spaceType}</p>
                 <div className="flex items-center text-gray-400">
                   <Users className="w-5 h-5 mr-2" />
-                  <span>{map.visitors} visitors</span>
+                  {/* <span>{map.visitors} visitors</span> */}
                 </div>
               </div>
             </motion.div>

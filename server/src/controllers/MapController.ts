@@ -39,3 +39,30 @@ export const createMap = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const getMaps = async (req: Request, res: Response) => {
+  try {
+    const {username} = req.body;
+    const maps = await MapM.find();
+    if (maps.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No maps found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        maps,
+      },
+      message: "Maps retrieved successfully",
+    });
+  } catch (error: MongooseError | any) {
+    console.error("Error getting maps:", error);
+    return res.status(400).json({
+      status: "fail",
+      message: error instanceof Error ? error.message : "Error getting maps",
+    });
+  }
+}
