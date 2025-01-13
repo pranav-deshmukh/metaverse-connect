@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     select: false,
   },
+  maps:{
+    type:Map,
+    of:Object,
+    default:new Map(),
+  }
 });
 
 userSchema.pre("save", async function () {

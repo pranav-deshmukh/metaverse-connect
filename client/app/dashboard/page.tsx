@@ -36,18 +36,21 @@ const Dashboard = () => {
     },
   ];
 
-  const createMapReq=async()=>{
+  const createMapReq = async () => {
     try {
-      const players = new Map([[userId, { userId, role: 'player' }]]);
-      const admin = new Map([[userId, { userId, role: 'admin' }]]);
-      console.log('players', userId);
-      const response = await axios.post("http://localhost:8000/api/v1/maps/create", {
-        mapName,
-        mapType,
-        spaceType,
-        players: Object.fromEntries(players),
-        admin: Object.fromEntries(admin)
-      });
+      const players = new Map([[userId, { userId, role: "player" }]]);
+      const admin = new Map([[userId, { userId, role: "admin" }]]);
+      console.log("players", userId);
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/maps/create",
+        {
+          mapName,
+          mapType,
+          spaceType,
+          players: Object.fromEntries(players),
+          admin: Object.fromEntries(admin),
+        }
+      );
       console.log(response);
 
       if (response.status === 201) {
@@ -58,7 +61,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error creating map:", error);
     }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,16 +83,18 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchMaps = async () => {
       try {
-        const maps = await axios.post("http://localhost:8000/api/v1/maps/getmaps");
+        const maps = await axios.post(
+          "http://localhost:8000/api/v1/maps/getmaps"
+        );
         console.log(maps.data.data.maps);
         console.log(maps.data.message);
         setFetchedMaps(maps.data.data.maps);
       } catch (error) {
         console.log(error);
       }
-    }
+    };
     fetchMaps();
-  },[]);
+  }, []);
 
   const renderModalNo = (modalNo: number) => {
     if (modalNo === 0) {
@@ -158,7 +163,7 @@ const Dashboard = () => {
           />
         </>
       );
-    }else if (modalNo === 4) {
+    } else if (modalNo === 4) {
       return (
         <>
           <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
