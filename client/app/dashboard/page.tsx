@@ -84,25 +84,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchMaps = async () => {
-  //     try {
-  //       const maps = await axios.post(
-  //         "http://localhost:8000/api/v1/maps/getmaps",{
-  //           username:username
-  //         }
-  //       );
-
-  //       console.log(maps.data.data.maps);
-  //       console.log(maps.data.message);
-  //       setFetchedMaps(maps.data.data.maps);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchMaps();
-  // }, [username]);
-
   const renderModalNo = (modalNo: number) => {
     if (modalNo === 0) {
       setModalNo(0);
@@ -187,7 +168,7 @@ const Dashboard = () => {
       setIsModalOpen(false);
     }
   };
-  const routeToMap = (mapId) => {
+  const routeToMap = (mapId:string) => {
     router.push(`/maps/${mapId}`);
   }
 

@@ -49,4 +49,8 @@ export class RoomManager {
       console.log(`Added user ${user} to space ${spaceId}`);
     }
   }
+
+  public getMapId(socketId:number){
+    return this.rooms.get(socketId);
+  }
 }

@@ -82,22 +82,13 @@ const MapsPage: React.FC = () => {
       });
     });
 
-    sc.on("playerDisconnected", (disconnectedSocketId) => {
-      console.log("Player disconnected:", disconnectedSocketId);
-      setRoomData((prevRoomData) => {
-        const updatedRoomData = { ...prevRoomData };
-        if (updatedRoomData[1234]) {
-          delete updatedRoomData[1234][disconnectedSocketId];
-        }
-        return updatedRoomData;
-      });
-    });
+   
 
     return () => {
-      sc.emit("remove");
+      // sc.emit("remove");
       sc.close();
     };
-  }, []);
+  }, [mapid]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
