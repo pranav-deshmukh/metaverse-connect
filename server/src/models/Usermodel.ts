@@ -1,12 +1,12 @@
-import mongoose, {Document} from "mongoose";
+import mongoose, { Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface userI extends Document {
   username: string;
   email: string;
   password: string;
+  maps: Record<string, { mapName: string; mapId: string }>; // Updated type for maps
   correctPassword(candidatePassword: string, userPassword: string): boolean;
-
 }
 
 const userSchema = new mongoose.Schema({
@@ -26,11 +26,20 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     select: false,
   },
-  maps:{
-    type:Map,
-    of:Object,
-    default:new Map(),
-  }
+  maps: {
+    type: Object,
+    default: {},
+    of: {
+      mapName: {
+        type: String,
+        required: true,
+      },
+      mapId: {
+        type: String,
+        required: true,
+      },
+    },
+  },
 });
 
 // userSchema.pre("save", async function () {
@@ -38,8 +47,8 @@ const userSchema = new mongoose.Schema({
 // });
 
 userSchema.methods.correctPassword = async function (
-  candidatePassword:string,
-  userPassword:string
+  candidatePassword: string,
+  userPassword: string
 ) {
   return bcrypt.compare(candidatePassword, userPassword);
 };

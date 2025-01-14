@@ -2,25 +2,30 @@ import { MapM } from "../models/Mapmodel";
 import { User } from "../models/Usermodel";
 import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
-import { v4 as uuidv4 } from "uuid"; 
+import { v4 as uuidv4 } from "uuid";
 
 export const createMap = async (req: Request, res: Response) => {
   try {
     const { mapType, mapName, players, spaceType, admin } = req.body;
     console.log(req.body);
-    if (!mapType || !mapName || !spaceType|| !players || !admin) {
+
+    // Validate required fields
+    if (!mapType || !mapName || !spaceType || !players || !admin) {
       return res.status(400).json({
         status: "fail",
         message: "Missing or invalid required fields",
       });
     }
+
+    // Ensure players map has at least one entry
     const firstPlayerEntry = Object.entries(players)[0];
-    if(!firstPlayerEntry){
+    if (!firstPlayerEntry) {
       return res.status(400).json({
         status: "fail",
         message: "Players map must have at least one entry",
       });
     }
+
     const [userId, playerData] = firstPlayerEntry;
     const user = await User.findById(userId);
     if (!user) {
@@ -29,19 +34,21 @@ export const createMap = async (req: Request, res: Response) => {
         message: "Player (user) not found",
       });
     }
+
+    // Create new map
     const newMap = await MapM.create({
       mapType,
       mapName,
       players,
       spaceType,
-      admin: admin || new Map(),
+      admin: admin || {},
       mapID: uuidv4(),
     });
 
     await newMap.save();
 
-    user.maps.set(newMap.mapID, {mapName:newMap.mapName, mapType:newMap.mapType});
-
+    // Add map to user's maps object
+    user.maps[newMap.mapID] = { mapName: newMap.mapName, mapId: newMap.mapID };
     await user.save();
 
     res.status(201).json({
@@ -60,17 +67,31 @@ export const createMap = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getMaps = async (req: Request, res: Response) => {
   try {
-    const {username} = req.body;
-    const maps = await MapM.find();
-    if (maps.length === 0) {
+    const { username } = req.body;
+    console.log(username);
+
+    // Find user by username
+    const foundUser = await User.findOne({ username });
+    if (!foundUser) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    console.log(foundUser);
+    const maps = foundUser.maps;
+
+    // Check if user has any maps
+    if (Object.keys(maps).length === 0) {
       return res.status(404).json({
         status: "fail",
         message: "No maps found",
       });
     }
+
     res.status(200).json({
       status: "success",
       data: {
@@ -85,4 +106,4 @@ export const getMaps = async (req: Request, res: Response) => {
       message: error instanceof Error ? error.message : "Error getting maps",
     });
   }
-}
+};

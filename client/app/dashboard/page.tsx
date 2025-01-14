@@ -10,7 +10,7 @@ import { set } from "zod";
 
 const Dashboard = () => {
   const [selectedMap, setSelectedMap] = useState(null);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [spaceType, setSpaceType] = useState("");
@@ -67,34 +67,39 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("jwt");
-        const response = await axios.post(
+        const userResponse = await axios.post(
           "http://localhost:8000/api/v1/users/getUser",
           { token }
         );
-        console.log(response.data.userId);
-        setUsername(response.data.name);
-        setUserId(response.data.userId);
+        setUsername(userResponse.data.name);
+        setUserId(userResponse.data.userId);
+        setFetchedMaps(userResponse.data.maps);
+        console.log(userResponse.data.maps)
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
   }, []);
-  useEffect(() => {
-    const fetchMaps = async () => {
-      try {
-        const maps = await axios.post(
-          "http://localhost:8000/api/v1/maps/getmaps"
-        );
-        console.log(maps.data.data.maps);
-        console.log(maps.data.message);
-        setFetchedMaps(maps.data.data.maps);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchMaps();
-  }, []);
+
+  // useEffect(() => {
+  //   const fetchMaps = async () => {
+  //     try {
+  //       const maps = await axios.post(
+  //         "http://localhost:8000/api/v1/maps/getmaps",{
+  //           username:username
+  //         }
+  //       );
+
+  //       console.log(maps.data.data.maps);
+  //       console.log(maps.data.message);
+  //       setFetchedMaps(maps.data.data.maps);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchMaps();
+  // }, [username]);
 
   const renderModalNo = (modalNo: number) => {
     if (modalNo === 0) {
@@ -236,29 +241,33 @@ const Dashboard = () => {
         <h1 className="text-4xl font-bold text-white mb-8">
           Explore Your Spaces
         </h1>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {fetchedMaps.map((map) => (
+          {Object.entries(fetchedMaps)?.map(([key, map]) => (
             <motion.div
-              key={map.mapID}
+              key={map.mapID} 
               className="bg-white/10 shadow-lg rounded-xl overflow-hidden backdrop-blur-md hover:bg-white/20 cursor-pointer transition-all"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => {setSelectedMap(map.mapID);console.log(selectedMap)}}
+              onClick={() => {
+                setSelectedMap(map.mapID); 
+                
+                console.log("Selected Map ID:", map.mapID); 
+              }}
             >
               <Image
-                src={MapTry}
+                src={map.imageUrl || MapTry} 
                 alt="Map"
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
                 <h3 className="text-2xl font-semibold text-white mb-2">
-                  {map.mapName}
+                  {map.mapName} 
                 </h3>
                 <p className="text-gray-300 mb-4">{map.spaceType}</p>
                 <div className="flex items-center text-gray-400">
                   <Users className="w-5 h-5 mr-2" />
-                  {/* <span>{map.visitors} visitors</span> */}
+                 
+                  <span>{map.visitors} visitors</span>
                 </div>
               </div>
             </motion.div>

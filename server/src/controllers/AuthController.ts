@@ -69,7 +69,7 @@ export const getUser = async (req: Request, res: Response) => {
       userId: userId,
       email: currentUser.email,
       name: currentUser.username,
-      
+      maps:currentUser.maps
     });
   } catch (error) {
     console.error(error);
