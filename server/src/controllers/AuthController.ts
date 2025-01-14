@@ -2,6 +2,7 @@ import { User, userI } from "../models/Usermodel";
 import * as jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
+import bcrypt from "bcrypt";
 
 const createSendToken = (user: userI, statuscode: number, res: Response) => {
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
@@ -19,11 +20,13 @@ const createSendToken = (user: userI, statuscode: number, res: Response) => {
 export const signUp = async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
+    const hashedPass =await bcrypt.hash(password, 12);
     const newUser = await User.create({
       username,
       email,
-      password,
+      hashedPass,
     });
+    await newUser.save();
     createSendToken(newUser, 200, res);
   } catch (error: MongooseError | any) {
     return res.status(400).json({ status: "fail", message: error.message });

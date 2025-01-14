@@ -33,9 +33,9 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-userSchema.pre("save", async function () {
-  this.password = await bcrypt.hash(this.password, 12);
-});
+// userSchema.pre("save", async function () {
+//   this.password = await bcrypt.hash(this.password, 12);
+// });
 
 userSchema.methods.correctPassword = async function (
   candidatePassword:string,

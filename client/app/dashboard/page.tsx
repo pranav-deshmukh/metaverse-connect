@@ -244,7 +244,7 @@ const Dashboard = () => {
               className="bg-white/10 shadow-lg rounded-xl overflow-hidden backdrop-blur-md hover:bg-white/20 cursor-pointer transition-all"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedMap(map.mapID)}
+              onClick={() => {setSelectedMap(map.mapID);console.log(selectedMap)}}
             >
               <Image
                 src={MapTry}

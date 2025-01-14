@@ -1,4 +1,5 @@
 import { MapM } from "../models/Mapmodel";
+import { User } from "../models/Usermodel";
 import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
 import { v4 as uuidv4 } from "uuid"; 
@@ -7,22 +8,41 @@ export const createMap = async (req: Request, res: Response) => {
   try {
     const { mapType, mapName, players, spaceType, admin } = req.body;
     console.log(req.body);
-    if (!mapType || !mapName || !spaceType) {
+    if (!mapType || !mapName || !spaceType|| !players || !admin) {
       return res.status(400).json({
         status: "fail",
-        message: "Missing required fields",
+        message: "Missing or invalid required fields",
+      });
+    }
+    const firstPlayerEntry = Object.entries(players)[0];
+    if(!firstPlayerEntry){
+      return res.status(400).json({
+        status: "fail",
+        message: "Players map must have at least one entry",
+      });
+    }
+    const [userId, playerData] = firstPlayerEntry;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Player (user) not found",
       });
     }
     const newMap = await MapM.create({
       mapType,
       mapName,
-      players: players || new Map(),
+      players,
       spaceType,
       admin: admin || new Map(),
       mapID: uuidv4(),
     });
 
     await newMap.save();
+
+    user.maps.set(newMap.mapID, {mapName:newMap.mapName, mapType:newMap.mapType});
+
+    await user.save();
 
     res.status(201).json({
       status: "success",
