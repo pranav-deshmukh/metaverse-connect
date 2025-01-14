@@ -107,3 +107,38 @@ export const getMaps = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const addPlayerToMap = async (req: Request, res: Response) => {
+  try{
+    const {mapId,adminId, playerId} = req.body;
+    const map = await MapM.findOne({mapID:mapId});
+    // console.log(map);
+    if(!map){
+      return res.status(404).json({
+        status:"fail",
+        message:"Map not found",
+      });
+    }
+    if(map.admin.has(adminId)){
+      map.players.set(playerId, {
+        userId: playerId,
+        role: "player"
+      });
+      await map.save();
+      return res.status(200).json({
+        status:"success",
+        message:"Player added to map successfully",
+      });
+    }
+    return res.status(403).json({
+      status:"fail",
+      message:"User not authorized to add player to map",
+    })
+  }catch(error: MongooseError | any){
+    res.status(400).json({
+      status:"fail",
+      message:error instanceof Error ? error.message : "Error adding player to map",
+    })
+  }
+}
