@@ -71,21 +71,30 @@ io.on("connection", (socket) => {
     io.emit("movement data", data);
   });
 
-  socket.on("remove", () => {
-    RoomManager.getInstance().removeUser(socket.id, 1234);
-    console.log("remove user: ", socket.id);
+  // socket.on("remove", () => {
+  //   RoomManager.getInstance().removeUser(socket.id, 1234);
+  //   console.log("remove user: ", socket.id);
     
-    const roomsObject = Object.fromEntries(
-      Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
-    );
+  //   const roomsObject = Object.fromEntries(
+  //     Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
+  //   );
     
-    io.emit("rooms", roomsObject);
-  });
+  //   io.emit("rooms", roomsObject);
+  // });
 
   socket.on("disconnect", () => {
     console.log("Disconnected", socket.id);
-    RoomManager.getInstance().removeUser(socket.id, 1234);
-    
+    let mapId = undefined;
+    for(const [key, value] of RoomManager.getInstance().rooms.entries()) {
+      if(value.includes(socket.id)) {
+        mapId = key;
+        break;
+      }
+    }
+    console.log("Map ID:", mapId);
+    if(mapId){
+      RoomManager.getInstance().removeUser(socket.id, mapId);
+    }    
     const roomsObject = Object.fromEntries(
       Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
     );

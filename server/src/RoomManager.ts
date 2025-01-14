@@ -1,5 +1,5 @@
 export class RoomManager {
-  rooms = new Map<number, string[]>();
+  rooms = new Map<string, string[]>();
   static instance: RoomManager;
 
   private constructor() {
@@ -13,7 +13,7 @@ export class RoomManager {
     return this.instance;
   }
 
-  public removeUser(socketId: string, spaceId: number) {
+  public removeUser(socketId: string, spaceId: string) {
     if (!this.rooms.has(spaceId)) {
       return;
     }
@@ -29,7 +29,7 @@ export class RoomManager {
     console.log(`Removed user ${socketId} from space ${spaceId}`, this.rooms);
   }
 
-  public addUser(user: string, spaceId: number) {
+  public addUser(user: string, spaceId: string) {
     // First, remove any existing instances of this user
     // this.rooms.forEach((users, key) => {
     //   if (users.includes(user)) {
@@ -50,7 +50,4 @@ export class RoomManager {
     }
   }
 
-  public getMapId(socketId:number){
-    return this.rooms.get(socketId);
-  }
 }

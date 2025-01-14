@@ -47,7 +47,7 @@ const MapsPage: React.FC = () => {
       console.log("Connected with socket ID:", sc.id);
 
       // Join a room
-      sc.emit("join", 1234);
+      sc.emit("join", mapid);
     });
 
     // Handle room updates
@@ -73,11 +73,11 @@ const MapsPage: React.FC = () => {
 
     sc.on("movement data", (data) => {
       setRoomData((prevRoomData) => {
-        const room = prevRoomData[1234] || {};
+        const room = prevRoomData[mapid] || {};
         room[data.socketId] = { x: data.x, y: data.y };
         return {
           ...prevRoomData,
-          1234: room,
+          mapid: room,
         };
       });
     });
@@ -207,8 +207,8 @@ const MapsPage: React.FC = () => {
       // context.fillStyle = "blue";
       // context.fill();
 
-      if (roomData[1234]) {
-        Object.entries(roomData[1234]).forEach(([id, player]) => {
+      if (roomData[mapid]) {
+        Object.entries(roomData[mapid]).forEach(([id, player]) => {
           if (id === socketId) return;
           drawCharacter(context, playerSprite, frame, player.x, player.y);
           context.font = "10px Arial";
@@ -244,7 +244,7 @@ const MapsPage: React.FC = () => {
   return (
     <div className="w-screen h-screen">
       <canvas ref={canvasRef} width={1024} height={576} className="border" />
-      {Object.entries(roomData[1234] || {}).map(([id, player]) => (
+      {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
         <div key={id}>
           <p>Socket ID: {id}</p>
           <p>X: {player.x}</p>
