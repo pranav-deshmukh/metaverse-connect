@@ -7,6 +7,7 @@ import MapTry from "@/public/MapTry.png";
 import Image from "next/image";
 import axios from "axios";
 import { set } from "zod";
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const [selectedMap, setSelectedMap] = useState(null);
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [mapType, setMapType] = useState(0);
   const [userId, setUserId] = useState("");
   const [fetchedMaps, setFetchedMaps] = useState([]);
+  const router = useRouter();
   const maps = [
     {
       id: 1,
@@ -185,6 +187,9 @@ const Dashboard = () => {
       setIsModalOpen(false);
     }
   };
+  const routeToMap = (mapID) => {
+    router.push(`/maps/${mapID}`);
+  }
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a]">
@@ -250,7 +255,7 @@ const Dashboard = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 setSelectedMap(map.mapID); 
-                
+                routeToMap(map.mapID);
                 console.log("Selected Map ID:", map.mapID); 
               }}
             >
