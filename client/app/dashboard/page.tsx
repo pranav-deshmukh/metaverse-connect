@@ -187,8 +187,8 @@ const Dashboard = () => {
       setIsModalOpen(false);
     }
   };
-  const routeToMap = (mapID) => {
-    router.push(`/maps/${mapID}`);
+  const routeToMap = (mapId) => {
+    router.push(`/maps/${mapId}`);
   }
 
   return (
@@ -249,14 +249,14 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Object.entries(fetchedMaps)?.map(([key, map]) => (
             <motion.div
-              key={map.mapID} 
+              key={map.mapId} 
               className="bg-white/10 shadow-lg rounded-xl overflow-hidden backdrop-blur-md hover:bg-white/20 cursor-pointer transition-all"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                setSelectedMap(map.mapID); 
-                routeToMap(map.mapID);
-                console.log("Selected Map ID:", map.mapID); 
+                setSelectedMap(map.mapId); 
+                routeToMap(map.mapId);
+                console.log("Selected Map ID:", map.mapId); 
               }}
             >
               <Image

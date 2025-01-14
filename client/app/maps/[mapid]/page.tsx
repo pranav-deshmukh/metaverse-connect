@@ -6,10 +6,13 @@ import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
+import { useParams } from 'next/navigation';
 
 let moving = false;
 
 const MapsPage: React.FC = () => {
+  const { mapid } = useParams<{ mapid: string }>();
+  console.log(mapid);
   let x = -505,
     y = -310;
   const canvasRef = useRef<HTMLCanvasElement>(null);
