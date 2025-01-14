@@ -110,35 +110,72 @@ export const getMaps = async (req: Request, res: Response) => {
 
 
 export const addPlayerToMap = async (req: Request, res: Response) => {
-  try{
-    const {mapId,adminId, playerId} = req.body;
-    const map = await MapM.findOne({mapID:mapId});
-    // console.log(map);
-    if(!map){
+  try {
+    const {mapId, adminId, playerId} = req.body;
+    const map = await MapM.findOne({mapID: mapId});
+    
+    if (!map) {
       return res.status(404).json({
-        status:"fail",
-        message:"Map not found",
+        status: "fail",
+        message: "Map not found",
       });
     }
-    if(map.admin.has(adminId)){
+
+    if (map.admin.has(adminId)) {
+      if (map.players.has(playerId)) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Player already added to map",
+        });
+      }
+
+      // Add player to map
       map.players.set(playerId, {
         userId: playerId,
         role: "player"
       });
-      await map.save();
+
+      // Find player and explicitly select maps field
+      const newPlayer = await User.findById(playerId).select('+maps');
+      console.log(newPlayer);
+      if (!newPlayer) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Player not found",
+        });
+      }
+
+      // Initialize maps if undefined
+      if (!newPlayer.maps) {
+        newPlayer.maps = {};
+      }
+
+      // Update player's maps
+      newPlayer.maps[mapId] = {
+        mapName: map.mapName,
+        mapId: map.mapID
+      };
+
+      // Save both documents
+      await Promise.all([
+        map.save(),
+        newPlayer.save()
+      ]);
+
       return res.status(200).json({
-        status:"success",
-        message:"Player added to map successfully",
+        status: "success",
+        message: "Player added to map successfully",
       });
     }
+
     return res.status(403).json({
-      status:"fail",
-      message:"User not authorized to add player to map",
-    })
-  }catch(error: MongooseError | any){
+      status: "fail",
+      message: "User not authorized to add player to map",
+    });
+  } catch (error: MongooseError | any) {
     res.status(400).json({
-      status:"fail",
-      message:error instanceof Error ? error.message : "Error adding player to map",
-    })
+      status: "fail",
+      message: error instanceof Error ? error.message : "Error adding player to map",
+    });
   }
 }
