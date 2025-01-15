@@ -129,13 +129,11 @@ export const addPlayerToMap = async (req: Request, res: Response) => {
         });
       }
 
-      // Add player to map
       map.players.set(playerId, {
         userId: playerId,
         role: "player"
       });
 
-      // Find player and explicitly select maps field
       const newPlayer = await User.findById(playerId).select('+maps');
       console.log(newPlayer);
       if (!newPlayer) {
@@ -145,18 +143,15 @@ export const addPlayerToMap = async (req: Request, res: Response) => {
         });
       }
 
-      // Initialize maps if undefined
       if (!newPlayer.maps) {
         newPlayer.maps = {};
       }
 
-      // Update player's maps
       newPlayer.maps[mapId] = {
         mapName: map.mapName,
         mapId: map.mapID
       };
 
-      // Save both documents
       await Promise.all([
         map.save(),
         newPlayer.save()

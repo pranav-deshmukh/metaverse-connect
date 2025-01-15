@@ -7,6 +7,7 @@ import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
 import { useParams } from 'next/navigation';
+import { collisionsMap, boundries } from "@/utils/collisions";
 
 let moving = false;
 
@@ -184,6 +185,8 @@ const MapsPage: React.FC = () => {
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
         drawMap(context, backgroundImage, x, y);
+        boundries.forEach((boundry) => boundry.draw(context));
+        console.log(boundries)
       }
       if (playerSprite.complete) {
         drawCharacter(
@@ -240,6 +243,8 @@ const MapsPage: React.FC = () => {
 
     animate();
   }, [roomData, socketId]);
+  console.log(collisionsMap.length)
+  console.log(boundries)
 
   return (
     <div className="w-screen h-screen">
