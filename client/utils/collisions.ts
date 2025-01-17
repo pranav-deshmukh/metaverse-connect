@@ -1,17 +1,17 @@
 import { collisions } from "@/data/Collisions";
 
 export const collisionsMap = [];
-for (let i = 0; i < collisions.length; i += 70) {
-  collisionsMap.push(collisions.slice(i, i + 70));
+for (let i = 0; i < collisions.length; i += 85) {
+  collisionsMap.push(collisions.slice(i, i + 85));
 }
 
 class Boundry {
-  static width = 48;
-  static height = 48;
+  static width = 12;
+  static height = 12;
   constructor({ position }) {
     this.position = position;
-    this.width = 48;
-    this.height = 48;
+    this.width = 12;
+    this.height = 12;
   }
   draw(context) {
     // console.log(context)

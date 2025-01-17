@@ -1,4 +1,4 @@
-import mapImage from "@/public/map1.png";
+import mapImage from "@/public/finalmap.png";
 import playerImage from "@/public/playerDown.png";
 
 export const drawMap = (
@@ -8,7 +8,7 @@ export const drawMap = (
   y: number
 ) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.drawImage(backgroundImage, x, y, 1500, 1800);
+  ctx.drawImage(backgroundImage, x, y);
 };
 
 export const drawCharacter = (
@@ -26,8 +26,8 @@ export const drawCharacter = (
     playerSprite.height,
     ctx.canvas.width / 2  + (x +505),
     ctx.canvas.height / 2 + (y +310),
-    playerSprite.width / 4,
-    playerSprite.height
+    playerSprite.width / 8,
+    playerSprite.height/2
   );
 };
 

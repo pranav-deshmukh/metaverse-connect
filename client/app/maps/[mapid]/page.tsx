@@ -6,7 +6,7 @@ import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
-import { useParams } from 'next/navigation';
+import { useParams } from "next/navigation";
 import { collisionsMap, boundries } from "@/utils/collisions";
 
 let moving = false;
@@ -14,8 +14,8 @@ let moving = false;
 const MapsPage: React.FC = () => {
   const { mapid } = useParams<{ mapid: string }>();
   console.log(mapid);
-  let x = -505,
-    y = -310;
+  let x = 0,
+    y = 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [roomData, setRoomData] = useState<{
@@ -34,7 +34,7 @@ const MapsPage: React.FC = () => {
   };
 
   let lastKey = "";
-  const speed = 1;
+  const speed = 0.3;
   let frame = 0;
   let animationCounter = 0;
 
@@ -82,8 +82,6 @@ const MapsPage: React.FC = () => {
         };
       });
     });
-
-   
 
     return () => {
       // sc.emit("remove");
@@ -186,7 +184,7 @@ const MapsPage: React.FC = () => {
       if (backgroundImage.complete) {
         drawMap(context, backgroundImage, x, y);
         boundries.forEach((boundry) => boundry.draw(context));
-        console.log(boundries)
+        console.log(boundries);
       }
       if (playerSprite.complete) {
         drawCharacter(
@@ -243,8 +241,8 @@ const MapsPage: React.FC = () => {
 
     animate();
   }, [roomData, socketId]);
-  console.log(collisionsMap.length)
-  console.log(boundries)
+  // console.log(collisionsMap.length)
+  // console.log(boundries)
 
   return (
     <div className="w-screen h-screen">
