@@ -114,12 +114,12 @@ const MapsPage: React.FC = () => {
     };
   }, []);
 
-  function rectangularCollision(rectangle2) {
+  function rectangularCollision(xloc,yloc,rectangle2) {
     return (
-      positionRef.current.x + playerImage.width / 8 >= rectangle2.position.x &&
-      positionRef.current.x <= rectangle2.position.x + rectangle2.width &&
-      positionRef.current.y <= rectangle2.position.y + rectangle2.height &&
-      positionRef.current.y + playerImage.height / 2 >= rectangle2.position.y
+      xloc + playerImage.width / 8 >= rectangle2.position.x &&
+      xloc <= rectangle2.position.x + rectangle2.width &&
+      yloc <= rectangle2.position.y + rectangle2.height &&
+      yloc + playerImage.height / 2 >= rectangle2.position.y
     );
   }
 
@@ -165,7 +165,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(boundry)) {
+          if (rectangularCollision(positionRef.current.x, positionRef.current.y+3,boundry)) {
             console.log("Collided with boundary (ArrowUp)");
             collisionDetected = true;
           }
@@ -179,7 +179,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(boundry)) {
+          if (rectangularCollision(positionRef.current.x, positionRef.current.y-3,boundry)) {
             console.log("Collided with boundary (ArrowDown)");
             collisionDetected = true;
           }
@@ -193,7 +193,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(boundry)) {
+          if (rectangularCollision(positionRef.current.x+3, positionRef.current.y,boundry)) {
             console.log("Collided with boundary (ArrowLeft)");
             collisionDetected = true;
           }
@@ -207,7 +207,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(boundry)) {
+          if (rectangularCollision(positionRef.current.x-3, positionRef.current.y,boundry)) {
             console.log("Collided with boundary (ArrowRight)");
             collisionDetected = true;
           }
