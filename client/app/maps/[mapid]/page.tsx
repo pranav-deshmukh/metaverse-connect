@@ -34,7 +34,7 @@ const MapsPage: React.FC = () => {
   };
 
   let lastKey = "";
-  const speed = 0.3;
+  const speed = 1;
   let frame = 0;
   let animationCounter = 0;
 
@@ -165,7 +165,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(positionRef.current.x, positionRef.current.y+3,boundry)) {
+          if (rectangularCollision(positionRef.current.x, positionRef.current.y+1,boundry)) {
             console.log("Collided with boundary (ArrowUp)");
             collisionDetected = true;
           }
@@ -179,7 +179,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(positionRef.current.x, positionRef.current.y-3,boundry)) {
+          if (rectangularCollision(positionRef.current.x, positionRef.current.y-1,boundry)) {
             console.log("Collided with boundary (ArrowDown)");
             collisionDetected = true;
           }
@@ -193,7 +193,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(positionRef.current.x+3, positionRef.current.y,boundry)) {
+          if (rectangularCollision(positionRef.current.x+1, positionRef.current.y,boundry)) {
             console.log("Collided with boundary (ArrowLeft)");
             collisionDetected = true;
           }
@@ -207,7 +207,7 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          if (rectangularCollision(positionRef.current.x-3, positionRef.current.y,boundry)) {
+          if (rectangularCollision(positionRef.current.x-1, positionRef.current.y,boundry)) {
             console.log("Collided with boundary (ArrowRight)");
             collisionDetected = true;
           }
@@ -233,7 +233,7 @@ const MapsPage: React.FC = () => {
       if (backgroundImage.complete) {
         drawMap(context, backgroundImage, x, y);
         boundries.forEach((boundry) => {
-          boundry.draw(context);
+          // boundry.draw(context);
           // if (rectangularCollision(boundry)) {
           //   console.log("Collided");
           // }
@@ -300,10 +300,10 @@ const MapsPage: React.FC = () => {
   // console.log(boundries)
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-full h-screen">
       <canvas ref={canvasRef} width={1024} height={576} className="border" />
       {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
-        <div key={id}>
+        <div key={id} className="w-[80%]">
           <p>Socket ID: {id}</p>
           <p>X: {player.x}</p>
           <p>Y: {player.y}</p>
