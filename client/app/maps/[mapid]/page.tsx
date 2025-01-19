@@ -7,7 +7,7 @@ import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
 import { useParams } from "next/navigation";
-import { collisionsMap, boundries } from "@/utils/collisions";
+import { collisionsMap, boundries, testBoundry } from "@/utils/collisions";
 
 let moving = false;
 
@@ -24,7 +24,7 @@ const MapsPage: React.FC = () => {
     };
   }>({});
   const socketRef = useRef<Socket | null>(null);
-  const positionRef = useRef({ x: -505, y: -310 });
+  const positionRef = useRef({ x: 400, y: 400 });
 
   let keys = {
     ArrowUp: { pressed: false },
@@ -114,6 +114,15 @@ const MapsPage: React.FC = () => {
     };
   }, []);
 
+  function rectangularCollision(rectangle2) {
+    return (
+      positionRef.current.x + playerImage.width / 8 >= rectangle2.position.x &&
+      positionRef.current.x <= rectangle2.position.x + rectangle2.width &&
+      positionRef.current.y <= rectangle2.position.y + rectangle2.height &&
+      positionRef.current.y + playerImage.height / 2 >= rectangle2.position.y
+    );
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -154,21 +163,61 @@ const MapsPage: React.FC = () => {
       let updated = false;
 
       if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
-        positionRef.current.y += speed;
-        updated = true;
+        let collisionDetected = false;
+        boundries.forEach((boundry) => {
+          if (rectangularCollision(boundry)) {
+            console.log("Collided with boundary (ArrowUp)");
+            collisionDetected = true;
+          }
+        });
+        if (!collisionDetected) {
+          positionRef.current.y += speed; // Move up
+          updated = true;
+        }
       }
+
       if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
-        positionRef.current.y -= speed;
-        updated = true;
+        let collisionDetected = false;
+        boundries.forEach((boundry) => {
+          if (rectangularCollision(boundry)) {
+            console.log("Collided with boundary (ArrowDown)");
+            collisionDetected = true;
+          }
+        });
+        if (!collisionDetected) {
+          positionRef.current.y -= speed; // Move down
+          updated = true;
+        }
       }
+
       if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
-        positionRef.current.x += speed;
-        updated = true;
+        let collisionDetected = false;
+        boundries.forEach((boundry) => {
+          if (rectangularCollision(boundry)) {
+            console.log("Collided with boundary (ArrowLeft)");
+            collisionDetected = true;
+          }
+        });
+        if (!collisionDetected) {
+          positionRef.current.x += speed; // Move left
+          updated = true;
+        }
       }
+
       if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
-        positionRef.current.x -= speed;
-        updated = true;
+        let collisionDetected = false;
+        boundries.forEach((boundry) => {
+          if (rectangularCollision(boundry)) {
+            console.log("Collided with boundary (ArrowRight)");
+            collisionDetected = true;
+          }
+        });
+        if (!collisionDetected) {
+          positionRef.current.x -= speed; // Move right
+          updated = true;
+        }
       }
+
       if (updated) {
         socketRef.current?.emit("movement", {
           x: positionRef.current.x,
@@ -183,8 +232,14 @@ const MapsPage: React.FC = () => {
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
         drawMap(context, backgroundImage, x, y);
-        boundries.forEach((boundry) => boundry.draw(context));
-        console.log(boundries);
+        boundries.forEach((boundry) => {
+          boundry.draw(context);
+          // if (rectangularCollision(boundry)) {
+          //   console.log("Collided");
+          // }
+        });
+        // testBoundry.draw(context);
+        // console.log(boundries);
       }
       if (playerSprite.complete) {
         drawCharacter(
@@ -198,8 +253,8 @@ const MapsPage: React.FC = () => {
         context.fillStyle = "purple";
         context.fillText(
           "Hello World",
-          context.canvas.width / 2 + positionRef.current.x + 500,
-          context.canvas.width / 2 + positionRef.current.y + 160
+          positionRef.current.x,
+          positionRef.current.y
         );
       }
 
@@ -214,11 +269,7 @@ const MapsPage: React.FC = () => {
           drawCharacter(context, playerSprite, frame, player.x, player.y);
           context.font = "10px Arial";
           context.fillStyle = "purple";
-          context.fillText(
-            id,
-            context.canvas.width / 2 + player.x + 500,
-            context.canvas.width / 2 + player.y + 160
-          );
+          context.fillText(id, player.x, player.y);
 
           // const relativeX =
           //   canvas.width / 2 + (player.x +505);
@@ -236,8 +287,12 @@ const MapsPage: React.FC = () => {
         frame = (frame + 1) % 4;
       }
 
-      console.log("Room Data:", roomData);
+      // console.log("Room Data:", roomData);
     }
+    console.log("Position:", positionRef.current.x);
+    console.log("Test Boundry:", testBoundry.position.x);
+    console.log("Player Width:", playerImage.width / 4);
+    console.log("Boundry Width:", testBoundry.width);
 
     animate();
   }, [roomData, socketId]);
