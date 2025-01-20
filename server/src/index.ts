@@ -87,6 +87,7 @@ io.on("connection", (socket) => {
   
   socket.on("message",(data)=>{
     // console.log(data);
+    socket.join(`${data.roomId}-${data.privateRoomNo}`)
     if(privateRooms.find(room=>room.roomId===data.roomId)===undefined){
       privateRooms.push({
         roomId:data.roomId,
@@ -107,6 +108,17 @@ io.on("connection", (socket) => {
       )
       console.log(pR?.messages)
     }
+
+    socket.to(`${data.roomId}-${data.privateRoomNo}`).emit("receiveMessage", {
+      socketId: socket.id,
+      msg: data.message,
+    });
+
+    // Optionally, emit to the sender as well (this can be omitted if not needed)
+    socket.emit("receiveMessage", {
+      socketId: socket.id,
+      msg: data.message,
+    });
 
     // console.log(privateRooms)
   })

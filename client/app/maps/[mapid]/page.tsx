@@ -102,6 +102,9 @@ const MapsPage: React.FC = () => {
       message:message
     }
     socketRef.current?.emit("message", tosenddata)
+    socketRef.current?.on('receiveMessage',(data)=>{
+      console.log('receivedmsg', data)
+    })
   };
 
   useEffect(() => {
