@@ -11,24 +11,7 @@ import { collisionsMap, boundries, Rooms, testRoom } from "@/utils/collisions";
 
 let moving = false;
 
-const chatrooms = {
-  chatroom1: {
-    topLeft: { x: 100, y: 100 },
-    bottomRight: { x: 200, y: 200 }
-  },
-  chatroom2: {
-    topLeft: { x: 408, y: 36 },
-    bottomRight: { x: 468, y: 108 }
-  },
-  chatroom3: {
-    topLeft: { x: 500, y: 50 },
-    bottomRight: { x: 600, y: 150 }
-  },
-  chatroom4: {
-    topLeft: { x: 700, y: 200 },
-    bottomRight: { x: 800, y: 300 }
-  }
-};
+
 
 const MapsPage: React.FC = () => {
   const { mapid } = useParams<{ mapid: string }>();
@@ -143,12 +126,23 @@ const MapsPage: React.FC = () => {
   }
 
   function inChatRoom(xloc, yloc, room) {
-    return (
-      xloc + playerImage.width / 8 >= room.position.x && // Player's right edge passes the room's left edge
-      xloc <= room.position.x + room.width && // Player's left edge is within the room's right edge
-      yloc + playerImage.height / 2 >= room.position.y && // Player's bottom edge passes the room's top edge
-      yloc <= room.position.y + room.height // Player's top edge is within the room's bottom edge
-    );
+    if((xloc>408&&xloc<468)&&(yloc>36&&yloc<108)){
+      console.log('room2');
+      return true;
+    }
+    if((xloc>876&&xloc<936)&&(yloc>60&&yloc<108)){
+      console.log('room3');
+      return true;
+    }
+    if((xloc>612&&xloc<696)&&(yloc>408&&yloc<456)){
+      console.log('room4');
+      return true;
+    }
+    if((xloc>156&&xloc<192)&&(yloc>228&&yloc<336)){
+      console.log('room1');
+      return true;
+    }
+    return false;
   }
 
   useEffect(() => {
