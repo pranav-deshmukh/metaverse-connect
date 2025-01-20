@@ -396,13 +396,13 @@ const MapsPage: React.FC = () => {
           </div>
         </div>
       </div>
-      {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
+      {/* {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
         <div key={id} className="w-[80%]">
           <p>Socket ID: {id}</p>
           <p>X: {player.x}</p>
           <p>Y: {player.y}</p>
         </div>
-      ))}
+      ))} */}
     </div>
   );
 };
