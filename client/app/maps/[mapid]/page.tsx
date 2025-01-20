@@ -8,18 +8,20 @@ import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
 import { useParams } from "next/navigation";
 import { collisionsMap, boundries, Rooms, testRoom } from "@/utils/collisions";
+import { Input } from "@/components/ui/input";
+import { SendHorizonalIcon } from "lucide-react";
 
 let moving = false;
 
-
-
 const MapsPage: React.FC = () => {
   const { mapid } = useParams<{ mapid: string }>();
-  console.log(mapid);
+  // console.log(mapid);
   let x = 0,
     y = 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
+  const [showChat, setShowChat] = useState(false);
+  const [message, setMessage] = useState("");
   const [roomData, setRoomData] = useState<{
     [roomId: string]: {
       [socketId: string]: { x: number; y: number };
@@ -39,6 +41,7 @@ const MapsPage: React.FC = () => {
   const speed = 1;
   let frame = 0;
   let animationCounter = 0;
+  
 
   useEffect(() => {
     // Initialize the socket connection
@@ -47,7 +50,7 @@ const MapsPage: React.FC = () => {
 
     sc.on("connect", () => {
       setSocketId(sc.id);
-      console.log("Connected with socket ID:", sc.id);
+      // console.log("Connected with socket ID:", sc.id);
 
       // Join a room
       sc.emit("join", mapid);
@@ -55,7 +58,7 @@ const MapsPage: React.FC = () => {
 
     // Handle room updates
     sc.on("rooms", (data) => {
-      console.log("Room data received directly:", data);
+      // console.log("Room data received directly:", data);
 
       const formattedData = Object.keys(data).reduce((acc, roomId) => {
         acc[roomId] = data[roomId].reduce(
@@ -91,6 +94,16 @@ const MapsPage: React.FC = () => {
     };
   }, [mapid]);
 
+  const sendMessage = () => {
+    console.log(message);
+    const tosenddata = {
+      roomId:mapid,
+      privateRoomNo:1,
+      message:message
+    }
+    socketRef.current?.emit("message", tosenddata)
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (keys[e.key as keyof typeof keys]) {
@@ -125,23 +138,28 @@ const MapsPage: React.FC = () => {
     );
   }
 
-  function inChatRoom(xloc, yloc, room) {
-    if((xloc>408&&xloc<468)&&(yloc>36&&yloc<108)){
-      console.log('room2');
+  function inChatRoom(xloc, yloc) {
+    if (xloc > 408 && xloc < 468 && yloc > 36 && yloc < 108) {
+      // console.log('room2');
+      setShowChat(true);
       return true;
     }
-    if((xloc>876&&xloc<936)&&(yloc>60&&yloc<108)){
-      console.log('room3');
+    if (xloc > 876 && xloc < 936 && yloc > 60 && yloc < 108) {
+      // console.log('room3');
+      setShowChat(true);
       return true;
     }
-    if((xloc>612&&xloc<696)&&(yloc>408&&yloc<456)){
-      console.log('room4');
+    if (xloc > 612 && xloc < 696 && yloc > 408 && yloc < 456) {
+      // console.log('room4');
+      setShowChat(true);
       return true;
     }
-    if((xloc>156&&xloc<192)&&(yloc>228&&yloc<336)){
-      console.log('room1');
+    if (xloc > 156 && xloc < 192 && yloc > 228 && yloc < 336) {
+      // console.log('room1');
+      setShowChat(true);
       return true;
     }
+    setShowChat(false);
     return false;
   }
 
@@ -282,12 +300,10 @@ const MapsPage: React.FC = () => {
         Rooms.forEach((room) => {
           room.draw(context);
         });
-        Rooms.forEach((room) => {
-          if (inChatRoom(positionRef.current.x, positionRef.current.y, room)) {
-            console.log("Player is in the room:", room);
-            // Add additional logic for what happens when the player enters the room
-          }
-        });
+
+        if (inChatRoom(positionRef.current.x, positionRef.current.y)) {
+          // Add additional logic for what happens when the player enters the room
+        }
 
         // console.log(boundries);
       }
@@ -339,17 +355,44 @@ const MapsPage: React.FC = () => {
 
       // console.log("Room Data:", roomData);
     }
-    console.log("Position:", positionRef.current.x);
-    console.log("Player Width:", playerImage.width / 4);
+    // console.log("Position:", positionRef.current.x);
+    // console.log("Player Width:", playerImage.width / 4);
 
     animate();
   }, [roomData, socketId]);
   // console.log(collisionsMap.length)
   // console.log(boundries)
-  console.log(Rooms);
+  // console.log(Rooms);
   return (
-    <div className="w-full h-screen">
-      <canvas ref={canvasRef} width={1024} height={576} className="border" />
+    <div className="w-full h-screen bg-[#202540] text-white">
+      <div className="flex justify-between pt-10">
+        <canvas ref={canvasRef} width={1024} height={576} className="" />
+        <div className="border-[1px] border-gray-600 rounded-lg w-[450px]">
+          <div className="w-full h-[60px] text-center content-center text-2xl font-semibold">
+            Waiting room 1
+          </div>
+          <div className="w-full h-[30px] text-center content-center bg-[#373B53] text-sm">
+            No one in the room
+          </div>
+          <div className="w-full h-[380px]">Chats</div>
+          <div className="w-full h-[100px] flex items-center justify-evenly">
+            <Input
+              className="w-[85%] bg-[#202540] "
+              placeholder="Message in the room"
+              onChange={(e) => {
+                setMessage(e.target.value);
+              }}
+            />
+            <button
+              onClick={() => {
+                sendMessage();
+              }}
+            >
+              <SendHorizonalIcon className="text-gray-600" />
+            </button>
+          </div>
+        </div>
+      </div>
       {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
         <div key={id} className="w-[80%]">
           <p>Socket ID: {id}</p>
