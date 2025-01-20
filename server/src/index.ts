@@ -71,16 +71,9 @@ io.on("connection", (socket) => {
     io.emit("movement data", data);
   });
 
-  // socket.on("remove", () => {
-  //   RoomManager.getInstance().removeUser(socket.id, 1234);
-  //   console.log("remove user: ", socket.id);
-    
-  //   const roomsObject = Object.fromEntries(
-  //     Array.from(RoomManager.getInstance().rooms.entries()).map(([key, value]) => [key.toString(), value])
-  //   );
-    
-  //   io.emit("rooms", roomsObject);
-  // });
+  socket.on("message",(data)=>{
+    console.log(data);
+  })
 
   socket.on("disconnect", () => {
     console.log("Disconnected", socket.id);

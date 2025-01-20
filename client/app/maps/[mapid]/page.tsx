@@ -11,6 +11,25 @@ import { collisionsMap, boundries, Rooms, testRoom } from "@/utils/collisions";
 
 let moving = false;
 
+const chatrooms = {
+  chatroom1: {
+    topLeft: { x: 100, y: 100 },
+    bottomRight: { x: 200, y: 200 }
+  },
+  chatroom2: {
+    topLeft: { x: 408, y: 36 },
+    bottomRight: { x: 468, y: 108 }
+  },
+  chatroom3: {
+    topLeft: { x: 500, y: 50 },
+    bottomRight: { x: 600, y: 150 }
+  },
+  chatroom4: {
+    topLeft: { x: 700, y: 200 },
+    bottomRight: { x: 800, y: 300 }
+  }
+};
+
 const MapsPage: React.FC = () => {
   const { mapid } = useParams<{ mapid: string }>();
   console.log(mapid);
@@ -123,12 +142,12 @@ const MapsPage: React.FC = () => {
     );
   }
 
-  function inChatRoom(xloc, yloc, rectangle2) {
+  function inChatRoom(xloc, yloc, room) {
     return (
-      xloc === rectangle2.position.x 
-      // xloc === rectangle2.position.x + rectangle2.width &&
-      // yloc === rectangle2.position.y + rectangle2.height &&
-      // yloc + playerImage.height / 2 === rectangle2.position.y
+      xloc + playerImage.width / 8 >= room.position.x && // Player's right edge passes the room's left edge
+      xloc <= room.position.x + room.width && // Player's left edge is within the room's right edge
+      yloc + playerImage.height / 2 >= room.position.y && // Player's bottom edge passes the room's top edge
+      yloc <= room.position.y + room.height // Player's top edge is within the room's bottom edge
     );
   }
 
@@ -181,11 +200,11 @@ const MapsPage: React.FC = () => {
               boundry
             )
           ) {
-            console.log("Collided with boundary (ArrowUp)");
+            // console.log("Collided with boundary (ArrowUp)");
             collisionDetected = true;
           }
         });
-        
+
         if (!collisionDetected) {
           positionRef.current.y += speed; // Move up
           updated = true;
@@ -202,7 +221,7 @@ const MapsPage: React.FC = () => {
               boundry
             )
           ) {
-            console.log("Collided with boundary (ArrowDown)");
+            // console.log("Collided with boundary (ArrowDown)");
             collisionDetected = true;
           }
         });
@@ -222,7 +241,7 @@ const MapsPage: React.FC = () => {
               boundry
             )
           ) {
-            console.log("Collided with boundary (ArrowLeft)");
+            // console.log("Collided with boundary (ArrowLeft)");
             collisionDetected = true;
           }
         });
@@ -242,7 +261,7 @@ const MapsPage: React.FC = () => {
               boundry
             )
           ) {
-            console.log("Collided with boundary (ArrowRight)");
+            // console.log("Collided with boundary (ArrowRight)");
             collisionDetected = true;
           }
         });
@@ -269,12 +288,13 @@ const MapsPage: React.FC = () => {
         Rooms.forEach((room) => {
           room.draw(context);
         });
-        Rooms.forEach((Room)=>{
-          if(positionRef.current.x===Room.position.x || positionRef.current.y===Room.position.y){
-            console.log('inroom')
+        Rooms.forEach((room) => {
+          if (inChatRoom(positionRef.current.x, positionRef.current.y, room)) {
+            console.log("Player is in the room:", room);
+            // Add additional logic for what happens when the player enters the room
           }
-        })
-        testRoom.draw(context);
+        });
+
         // console.log(boundries);
       }
       if (playerSprite.complete) {
