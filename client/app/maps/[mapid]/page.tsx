@@ -7,9 +7,10 @@ import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
 import { useParams } from "next/navigation";
-import { collisionsMap, boundries, Rooms, testRoom } from "@/utils/collisions";
+import { collisionsMap, boundries, Rooms, testRoom, testBoundry } from "@/utils/collisions";
 import { Input } from "@/components/ui/input";
 import { SendHorizonalIcon } from "lucide-react";
+import test from "node:test";
 
 let moving = false;
 
@@ -212,8 +213,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              positionRef.current.x,
-              positionRef.current.y + 1,
+              canvasRef.current.width/2,
+              canvasRef.current.height/2 + 1,
               boundry
             )
           ) {
@@ -225,6 +226,10 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.y += speed; // Move up
           offsetRef.current.y += speed;
+          testBoundry.position.y += speed;
+          boundries.forEach((boundry) => { 
+            boundry.position.y += speed;
+          })
           updated = true;
         }
       }
@@ -246,17 +251,22 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.y -= speed; // Move down
           offsetRef.current.y -= speed; 
+          testBoundry.position.y -= speed;
+          boundries.forEach((boundry) => {
+            boundry.position.y -= speed;
+          })
           updated = true;
         }
       }
 
       if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
         let collisionDetected = false;
+        console.log(canvasRef.current.width/2 + 1)
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              positionRef.current.x + 1,
-              positionRef.current.y,
+              canvasRef.current?.width/2 + 1,
+              canvasRef.current?.height/2,
               boundry
             )
           ) {
@@ -267,6 +277,10 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.x += speed; // Move left
           offsetRef.current.x += speed;
+          testBoundry.position.x += speed;
+          boundries.forEach((boundry) => {
+            boundry.position.x += speed;
+          })
           updated = true;
         }
       }
@@ -276,8 +290,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              positionRef.current.x - 1,
-              positionRef.current.y,
+              canvasRef.current?.width/2 - 1,
+              canvasRef.current.height/2,
               boundry
             )
           ) {
@@ -288,6 +302,10 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.x -= speed; // Move right
           offsetRef.current.x -= speed;
+          testBoundry.position.x -= speed;
+          boundries.forEach((boundry) => {
+            boundry.position.x -= speed;
+          })
           updated = true;
         }
       }
@@ -305,11 +323,12 @@ const MapsPage: React.FC = () => {
 
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
-        drawMap(context, backgroundImage, x, y);
+        drawMap(context, backgroundImage, offsetRef.current.x, offsetRef.current.y);
         Rooms.forEach((room) => {
           room.draw(context);
         });
         boundries.forEach((boundry) => {boundry.draw(context);});
+        testBoundry.draw(context);
 
         if (inChatRoom(positionRef.current.x, positionRef.current.y)) {
           // Add additional logic for what happens when the player enters the room
@@ -322,8 +341,8 @@ const MapsPage: React.FC = () => {
           context,
           playerSprite,
           frame,
-          positionRef.current.x,
-          positionRef.current.y
+          canvasRef.current.width / 2,
+          canvasRef.current.height / 2
         );
         context.font = "10px Arial";
         context.fillStyle = "purple";
@@ -364,7 +383,10 @@ const MapsPage: React.FC = () => {
       }
 
       // console.log("Room Data:", roomData);
-      console.log("Position:", positionRef.current);
+      console.log("Position:", positionRef.current, "testBoundry:", testBoundry.position);
+      if(canvasRef.current.width / 2>testBoundry.position.x){
+        console.log('collided')
+      }
     }
     // console.log("Player Width:", playerImage.width / 4);
 

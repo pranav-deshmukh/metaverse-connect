@@ -38,7 +38,7 @@ class Room{
   }
 }
 
-// export const testBoundry = new Boundry({ position: { x: 400, y: 400 } });
+export const testBoundry = new Boundry({ position: { x: 400, y: 400 } });
 export const boundries = [];
 export const Rooms = [];
 
