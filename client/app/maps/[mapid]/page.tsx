@@ -29,6 +29,7 @@ const MapsPage: React.FC = () => {
   }>({});
   const socketRef = useRef<Socket | null>(null);
   const positionRef = useRef({ x: 400, y: 400 });
+  
 
   let keys = {
     ArrowUp: { pressed: false },
@@ -41,7 +42,8 @@ const MapsPage: React.FC = () => {
   const speed = 1;
   let frame = 0;
   let animationCounter = 0;
-  
+  const offsetRef = useRef({ x: 0, y: 0 }); 
+
 
   useEffect(() => {
     // Initialize the socket connection
@@ -222,6 +224,7 @@ const MapsPage: React.FC = () => {
 
         if (!collisionDetected) {
           positionRef.current.y += speed; // Move up
+          offsetRef.current.y += speed;
           updated = true;
         }
       }
@@ -242,6 +245,7 @@ const MapsPage: React.FC = () => {
         });
         if (!collisionDetected) {
           positionRef.current.y -= speed; // Move down
+          offsetRef.current.y -= speed; 
           updated = true;
         }
       }
@@ -262,6 +266,7 @@ const MapsPage: React.FC = () => {
         });
         if (!collisionDetected) {
           positionRef.current.x += speed; // Move left
+          offsetRef.current.x += speed;
           updated = true;
         }
       }
@@ -282,6 +287,7 @@ const MapsPage: React.FC = () => {
         });
         if (!collisionDetected) {
           positionRef.current.x -= speed; // Move right
+          offsetRef.current.x -= speed;
           updated = true;
         }
       }
@@ -303,6 +309,7 @@ const MapsPage: React.FC = () => {
         Rooms.forEach((room) => {
           room.draw(context);
         });
+        boundries.forEach((boundry) => {boundry.draw(context);});
 
         if (inChatRoom(positionRef.current.x, positionRef.current.y)) {
           // Add additional logic for what happens when the player enters the room
@@ -357,8 +364,8 @@ const MapsPage: React.FC = () => {
       }
 
       // console.log("Room Data:", roomData);
+      console.log("Position:", positionRef.current);
     }
-    // console.log("Position:", positionRef.current.x);
     // console.log("Player Width:", playerImage.width / 4);
 
     animate();
