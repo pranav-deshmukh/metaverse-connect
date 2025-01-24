@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("movement", (data) => {
-    // console.log(data);
+    console.log(data);
     io.emit("movement data", data);
   });
 
@@ -120,7 +120,7 @@ io.on("connection", (socket) => {
       msg: data.message,
     });
 
-    console.log(privateRooms)
+    // console.log(privateRooms)
   })
 
   socket.on("disconnect", () => {

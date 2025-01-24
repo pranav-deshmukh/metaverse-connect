@@ -1,4 +1,4 @@
-import mapImage from "@/public/mapGEnlarged.png";
+import mapImage from "@/public/finalmap.png";
 import playerImage from "@/public/playerDown.png";
 
 export const drawMap = (

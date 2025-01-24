@@ -16,8 +16,8 @@ let moving = false;
 const MapsPage: React.FC = () => {
   const { mapid } = useParams<{ mapid: string }>();
   // console.log(mapid);
-  let x = 500,
-    y = 300;
+  let x = 0,
+    y = 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [showChat, setShowChat] = useState(false);
@@ -28,9 +28,8 @@ const MapsPage: React.FC = () => {
     };
   }>({});
   const socketRef = useRef<Socket | null>(null);
-  const positionRef = useRef({ x: -400, y: -400 });
+  const positionRef = useRef({ x: 400, y: 400 });
 
- 
   let keys = {
     ArrowUp: { pressed: false },
     ArrowDown: { pressed: false },
@@ -209,10 +208,6 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowUp.pressed && lastKey === "ArrowUp") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          boundry.position.y+=speed
-        })
-        
-        boundries.forEach((boundry) => {
           if (
             rectangularCollision(
               positionRef.current.x,
@@ -234,9 +229,6 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowDown.pressed && lastKey === "ArrowDown") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          boundry.position.y-=speed
-        })
-        boundries.forEach((boundry) => {
           if (
             rectangularCollision(
               positionRef.current.x,
@@ -257,9 +249,6 @@ const MapsPage: React.FC = () => {
       if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
         let collisionDetected = false;
         boundries.forEach((boundry) => {
-          boundry.position.x+=speed
-        })
-        boundries.forEach((boundry) => {
           if (
             rectangularCollision(
               positionRef.current.x + 1,
@@ -279,9 +268,6 @@ const MapsPage: React.FC = () => {
 
       if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
         let collisionDetected = false;
-        boundries.forEach((boundry) => {
-          boundry.position.x-=speed
-        })
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
@@ -313,13 +299,10 @@ const MapsPage: React.FC = () => {
 
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
-        drawMap(context, backgroundImage, positionRef.current.x, positionRef.current.y);
+        drawMap(context, backgroundImage, x, y);
         Rooms.forEach((room) => {
           room.draw(context);
         });
-        boundries.forEach((boundry)=>{
-          boundry.draw(context)
-        })
 
         if (inChatRoom(positionRef.current.x, positionRef.current.y)) {
           // Add additional logic for what happens when the player enters the room
@@ -332,8 +315,8 @@ const MapsPage: React.FC = () => {
           context,
           playerSprite,
           frame,
-          x,
-          y
+          positionRef.current.x,
+          positionRef.current.y
         );
         context.font = "10px Arial";
         context.fillStyle = "purple";

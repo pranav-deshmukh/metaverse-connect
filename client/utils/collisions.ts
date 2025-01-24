@@ -9,27 +9,27 @@ for (let i = 0; i < collisions.length; i += 85) {
 }
 
 class Boundry {
-  static width = 36;
-  static height = 36;
+  static width = 12;
+  static height = 12;
   constructor({ position }) {
     this.position = position;
-    this.width = 36;
-    this.height = 36;
+    this.width = 12;
+    this.height = 12;
   }
   draw(context) {
     // console.log(context)
     // context.fillStyle = "red";
-    context.fillRect(this.position.x-400, this.position.y-400, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
 
 class Room{
-  static width = 36;
-  static height = 36;
+  static width = 12;
+  static height = 12;
   constructor({ position }) {
     this.position = position;
-    this.width = 36;
-    this.height = 36;
+    this.width = 12;
+    this.height = 12;
   }
   draw(context) {
     // console.log(context)
