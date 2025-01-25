@@ -214,7 +214,7 @@ const MapsPage: React.FC = () => {
           if (
             rectangularCollision(
               canvasRef.current.width/2,
-              canvasRef.current.height/2 + 1,
+              canvasRef.current.height/2 - 1,
               boundry
             )
           ) {
@@ -239,8 +239,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              positionRef.current.x,
-              positionRef.current.y - 1,
+              canvasRef.current.width/2,
+              canvasRef.current.height/2 + 1,
               boundry
             )
           ) {
@@ -265,7 +265,7 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current?.width/2 + 1,
+              canvasRef.current?.width/2 - 1,
               canvasRef.current?.height/2,
               boundry
             )
@@ -290,7 +290,7 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current?.width/2 - 1,
+              canvasRef.current?.width/2 + 1,
               canvasRef.current.height/2,
               boundry
             )
