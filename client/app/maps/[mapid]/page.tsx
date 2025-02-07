@@ -5,6 +5,8 @@ import { io, Socket } from "socket.io-client";
 import mapImage from "@/public/map1.png";
 import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
+import { SendHorizonal, MessageCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import { backgroundImage, playerSprite } from "@/utils/draw";
 import { useParams } from "next/navigation";
 import {
@@ -26,6 +28,7 @@ const MapsPage: React.FC = () => {
   let x = 0,
     y = 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [message, setMessage] = useState("");
@@ -34,7 +37,7 @@ const MapsPage: React.FC = () => {
       [socketId: string]: { x: number; y: number };
     };
   }>({});
-  const [recvMsgs, setRecvMsgs] = useState([]); 
+  const [recvMsgs, setRecvMsgs] = useState([]);
   const socketRef = useRef<Socket | null>(null);
   const positionRef = useRef({ x: 400, y: 400 });
 
@@ -50,6 +53,9 @@ const MapsPage: React.FC = () => {
   let frame = 0;
   let animationCounter = 0;
   const offsetRef = useRef({ x: 0, y: 0 });
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [recvMsgs]);
 
   useEffect(() => {
     // Initialize the socket connection
@@ -111,7 +117,7 @@ const MapsPage: React.FC = () => {
     };
     socketRef.current?.emit("message", tosenddata);
     socketRef.current?.on("receiveMessage", (data) => {
-      console.log('receivedmsg', data)
+      console.log("receivedmsg", data);
       setRecvMsgs(data.msg);
     });
   };
@@ -440,53 +446,82 @@ const MapsPage: React.FC = () => {
   // console.log(boundries)
   // console.log(Rooms);
   return (
-    <div className="w-full h-screen bg-[#202540] text-white">
-      <div className="flex justify-between pt-10">
-        <canvas ref={canvasRef} width={1024} height={576} className="" />
-        <div className="border-[1px] border-gray-600 rounded-lg w-[450px]">
-          <div className="w-full h-[60px] text-center content-center text-2xl font-semibold">
-            Waiting room 1
+    <div className="w-full h-screen bg-[#080A0F] text-white flex items-center justify-center p-10 relative overflow-hidden">
+      {/* Cyberpunk Grid Background */}
+      <div className="absolute inset-0 bg-grid-small opacity-20"></div>
+      
+      {/* Game Layout */}
+      <div className="relative flex w-full max-w-7xl justify-between items-start gap-6">
+        {/* Game Canvas */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="border-[3px] border-cyan-500 shadow-[0_0_30px_rgba(0,255,255,0.3)] rounded-lg overflow-hidden"
+        >
+          <canvas ref={canvasRef} width={1024} height={576} className="" />
+        </motion.div>
+
+        {/* Side Panel */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="border-[1px] border-gray-600 bg-[#14142a] shadow-lg rounded-lg w-[450px] p-4"
+        >
+          <div className="w-full h-[60px] text-center flex items-center justify-center text-2xl font-bold text-cyan-400">
+            🔥 Waiting Room 1
           </div>
-          <div className="w-full h-[30px] text-center content-center bg-[#373B53] text-sm">
+          <div className="w-full h-[30px] text-center flex items-center justify-center bg-[#373B53] text-sm text-gray-300">
             No one in the room
           </div>
+          
           {showChat && (
-            <>
-              <div className="w-full h-[380px]">
+            <div className="w-full bg-[#0c0c1d] border border-[#2a2a4e] shadow-xl rounded-lg p-4 relative mt-4">
+              {/* Chat Header */}
+              <div className="flex items-center justify-between px-3 py-2 bg-[#14142a] rounded-t-lg border-b border-cyan-400">
+                <h3 className="text-lg font-semibold text-white">Game Chat</h3>
+                <MessageCircle className="text-green-400 animate-pulse" />
+              </div>
+
+              {/* Chat Messages */}
+              <div className="w-full h-[280px] overflow-y-auto p-2 bg-[#1a1a2e] rounded-lg custom-scrollbar">
                 {recvMsgs.map((message, index) => (
-          <div key={index} className="p-2 bg-white rounded-lg shadow">
-            <p className="text-sm text-gray-500">ID: {message.socketId}</p>
-            <p className="text-base font-medium text-gray-900">{message.msg}</p>
-          </div>
-        ))}
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="mb-2 flex flex-col bg-[#202040] text-white p-3 rounded-lg shadow-lg border-l-4 border-cyan-500"
+                  >
+                    <p className="text-xs text-gray-400">ID: {message.socketId}</p>
+                    <p className="text-base font-semibold text-green-300">{message.msg}</p>
+                  </motion.div>
+                ))}
+                <div ref={chatEndRef}></div>
               </div>
-              <div className="w-full h-[100px] flex items-center justify-evenly">
-                <Input
-                  className="w-[85%] bg-[#202540] "
-                  placeholder="Message in the room"
-                  onChange={(e) => {
-                    setMessage(e.target.value);
-                  }}
+
+              {/* Chat Input */}
+              <div className="w-full flex items-center bg-[#14142a] rounded-b-lg p-3 border-t border-cyan-400">
+                <input
+                  className="w-[85%] bg-[#252542] text-white border-none focus:ring-0 rounded-md text-sm p-2"
+                  placeholder="Type your message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
-                <button
-                  onClick={() => {
-                    sendMessage();
-                  }}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={sendMessage}
+                  className="p-2 ml-2 bg-cyan-500 text-white rounded-full hover:bg-cyan-600 transition"
                 >
-                  <SendHorizonalIcon className="text-gray-600" />
-                </button>
+                  <SendHorizonal className="w-5 h-5" />
+                </motion.button>
               </div>
-            </>
+            </div>
           )}
-        </div>
+        </motion.div>
       </div>
-      {/* {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
-        <div key={id} className="w-[80%]">
-          <p>Socket ID: {id}</p>
-          <p>X: {player.x}</p>
-          <p>Y: {player.y}</p>
-        </div>
-      ))} */}
     </div>
   );
 };
