@@ -26,8 +26,8 @@ export const drawCharacter = (
     playerSprite.height,
    x,
     y,
-    playerSprite.width / 8,
-    playerSprite.height/2
+    playerSprite.width / 4,
+    playerSprite.height
   );
 };
 

@@ -40,7 +40,7 @@ const MapsPage: React.FC = () => {
   };
 
   let lastKey = "";
-  const speed = 1;
+  const speed = 3;
   let frame = 0;
   let animationCounter = 0;
   const offsetRef = useRef({ x: 0, y: 0 }); 
@@ -98,7 +98,7 @@ const MapsPage: React.FC = () => {
   }, [mapid]);
 
   const sendMessage = () => {
-    console.log(message);
+    // console.log(message);
     const tosenddata = {
       roomId:mapid,
       privateRoomNo:1,
@@ -106,7 +106,7 @@ const MapsPage: React.FC = () => {
     }
     socketRef.current?.emit("message", tosenddata)
     socketRef.current?.on('receiveMessage',(data)=>{
-      console.log('receivedmsg', data)
+      // console.log('receivedmsg', data)
     })
   };
 
@@ -224,7 +224,7 @@ const MapsPage: React.FC = () => {
         });
 
         if (!collisionDetected) {
-          positionRef.current.y += speed; // Move up
+          positionRef.current.y -= speed; // Move up
           offsetRef.current.y += speed;
           testBoundry.position.y += speed;
           boundries.forEach((boundry) => { 
@@ -249,7 +249,7 @@ const MapsPage: React.FC = () => {
           }
         });
         if (!collisionDetected) {
-          positionRef.current.y -= speed; // Move down
+          positionRef.current.y += speed; // Move down
           offsetRef.current.y -= speed; 
           testBoundry.position.y -= speed;
           boundries.forEach((boundry) => {
@@ -261,7 +261,7 @@ const MapsPage: React.FC = () => {
 
       if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
         let collisionDetected = false;
-        console.log(canvasRef.current.width/2 + 1)
+        // console.log(canvasRef.current.width/2 + 1)
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
@@ -275,7 +275,7 @@ const MapsPage: React.FC = () => {
           }
         });
         if (!collisionDetected) {
-          positionRef.current.x += speed; // Move left
+          positionRef.current.x -= speed; // Move left
           offsetRef.current.x += speed;
           testBoundry.position.x += speed;
           boundries.forEach((boundry) => {
@@ -300,7 +300,7 @@ const MapsPage: React.FC = () => {
           }
         });
         if (!collisionDetected) {
-          positionRef.current.x -= speed; // Move right
+          positionRef.current.x += speed; // Move right
           offsetRef.current.x -= speed;
           testBoundry.position.x -= speed;
           boundries.forEach((boundry) => {
@@ -327,8 +327,8 @@ const MapsPage: React.FC = () => {
         Rooms.forEach((room) => {
           room.draw(context);
         });
-        boundries.forEach((boundry) => {boundry.draw(context);});
-        testBoundry.draw(context);
+        // boundries.forEach((boundry) => {boundry.draw(context);});
+        // testBoundry.draw(context);
 
         if (inChatRoom(positionRef.current.x, positionRef.current.y)) {
           // Add additional logic for what happens when the player enters the room
@@ -344,12 +344,13 @@ const MapsPage: React.FC = () => {
           canvasRef.current.width / 2,
           canvasRef.current.height / 2
         );
+        console.log(canvasRef.current.width / 2, canvasRef.current.height / 2);
         context.font = "10px Arial";
         context.fillStyle = "purple";
         context.fillText(
           "Hello World",
-          positionRef.current.x,
-          positionRef.current.y
+          canvasRef.current.width / 2,
+          canvasRef.current.height / 2
         );
       }
 
@@ -361,32 +362,27 @@ const MapsPage: React.FC = () => {
       if (roomData[mapid]) {
         Object.entries(roomData[mapid]).forEach(([id, player]) => {
           if (id === socketId) return;
-          drawCharacter(context, playerSprite, frame, player.x, player.y);
+          
+          // Calculate relative position based on map offset
+          const relativeX = player.x - positionRef.current.x + canvas.width / 2;
+          const relativeY = player.y - positionRef.current.y + canvas.height / 2;
+          
+          drawCharacter(context, playerSprite, frame, relativeX, relativeY);
           context.font = "10px Arial";
           context.fillStyle = "purple";
-          context.fillText(id, player.x, player.y);
-
-          // const relativeX =
-          //   canvas.width / 2 + (player.x +505);
-          // const relativeY =
-          //   canvas.height / 2 + (player.y +310);
-
-          // context.beginPath();
-          // context.arc(relativeX, relativeY, 10, 0, Math.PI * 2);
-          // context.fillStyle = "red";
-          // context.fill();
+          context.fillText(id, relativeX, relativeY - 20); // Offset the text above player
         });
       }
       if (!moving) return;
-      if (animationCounter % 40 === 0) {
+      if (animationCounter % 4 === 0) {
         frame = (frame + 1) % 4;
       }
 
       // console.log("Room Data:", roomData);
-      console.log("Position:", positionRef.current, "testBoundry:", testBoundry.position);
-      if(canvasRef.current.width / 2>testBoundry.position.x){
-        console.log('collided')
-      }
+      // console.log("Position:", positionRef.current, "testBoundry:", testBoundry.position);
+      // if(canvasRef.current.width / 2>testBoundry.position.x){
+      //   console.log('collided')
+      // }
     }
     // console.log("Player Width:", playerImage.width / 4);
 
