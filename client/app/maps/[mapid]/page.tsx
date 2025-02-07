@@ -7,7 +7,13 @@ import playerImage from "@/public/playerDown.png";
 import { drawCharacter, drawMap } from "@/utils/draw";
 import { backgroundImage, playerSprite } from "@/utils/draw";
 import { useParams } from "next/navigation";
-import { collisionsMap, boundries, Rooms, testRoom, testBoundry } from "@/utils/collisions";
+import {
+  collisionsMap,
+  boundries,
+  Rooms,
+  testRoom,
+  testBoundry,
+} from "@/utils/collisions";
 import { Input } from "@/components/ui/input";
 import { SendHorizonalIcon } from "lucide-react";
 import test from "node:test";
@@ -30,7 +36,6 @@ const MapsPage: React.FC = () => {
   }>({});
   const socketRef = useRef<Socket | null>(null);
   const positionRef = useRef({ x: 400, y: 400 });
-  
 
   let keys = {
     ArrowUp: { pressed: false },
@@ -43,8 +48,7 @@ const MapsPage: React.FC = () => {
   const speed = 3;
   let frame = 0;
   let animationCounter = 0;
-  const offsetRef = useRef({ x: 0, y: 0 }); 
-
+  const offsetRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     // Initialize the socket connection
@@ -100,14 +104,14 @@ const MapsPage: React.FC = () => {
   const sendMessage = () => {
     // console.log(message);
     const tosenddata = {
-      roomId:mapid,
-      privateRoomNo:1,
-      message:message
-    }
-    socketRef.current?.emit("message", tosenddata)
-    socketRef.current?.on('receiveMessage',(data)=>{
+      roomId: mapid,
+      privateRoomNo: 1,
+      message: message,
+    };
+    socketRef.current?.emit("message", tosenddata);
+    socketRef.current?.on("receiveMessage", (data) => {
       // console.log('receivedmsg', data)
-    })
+    });
   };
 
   useEffect(() => {
@@ -144,29 +148,37 @@ const MapsPage: React.FC = () => {
     );
   }
 
-  function inChatRoom(xloc, yloc) {
-    if (xloc > 408 && xloc < 468 && yloc > 36 && yloc < 108) {
-      // console.log('room2');
+  function inChatRoom(xloc: number, yloc: number) {
+    let isInRoom = false;
+    let roomNumber = -1;
+
+    // Check each room in the Rooms array
+    Rooms.forEach((room, index) => {
+      if (
+        rectangularCollision(xloc, yloc, {
+          position: room.position,
+          width: room.width,
+          height: room.height,
+        })
+      ) {
+        isInRoom = true;
+        roomNumber = index + 1; // Adding 1 to make room numbers start from 1
+      }
+    });
+
+    if (isInRoom) {
       setShowChat(true);
-      return true;
+      return {
+        inRoom: true,
+        roomNumber: roomNumber,
+      };
     }
-    if (xloc > 876 && xloc < 936 && yloc > 60 && yloc < 108) {
-      // console.log('room3');
-      setShowChat(true);
-      return true;
-    }
-    if (xloc > 612 && xloc < 696 && yloc > 408 && yloc < 456) {
-      // console.log('room4');
-      setShowChat(true);
-      return true;
-    }
-    if (xloc > 156 && xloc < 192 && yloc > 228 && yloc < 336) {
-      // console.log('room1');
-      setShowChat(true);
-      return true;
-    }
+
     setShowChat(false);
-    return false;
+    return {
+      inRoom: false,
+      roomNumber: -1,
+    };
   }
 
   useEffect(() => {
@@ -213,8 +225,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current.width/2,
-              canvasRef.current.height/2 - 1,
+              canvasRef.current.width / 2,
+              canvasRef.current.height / 2 - 1,
               boundry
             )
           ) {
@@ -227,9 +239,12 @@ const MapsPage: React.FC = () => {
           positionRef.current.y -= speed; // Move up
           offsetRef.current.y += speed;
           testBoundry.position.y += speed;
-          boundries.forEach((boundry) => { 
+          boundries.forEach((boundry) => {
             boundry.position.y += speed;
-          })
+          });
+          Rooms.forEach((room) => {
+            room.position.y += speed;
+          });
           updated = true;
         }
       }
@@ -239,8 +254,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current.width/2,
-              canvasRef.current.height/2 + 1,
+              canvasRef.current.width / 2,
+              canvasRef.current.height / 2 + 1,
               boundry
             )
           ) {
@@ -250,11 +265,14 @@ const MapsPage: React.FC = () => {
         });
         if (!collisionDetected) {
           positionRef.current.y += speed; // Move down
-          offsetRef.current.y -= speed; 
+          offsetRef.current.y -= speed;
           testBoundry.position.y -= speed;
           boundries.forEach((boundry) => {
             boundry.position.y -= speed;
-          })
+          });
+          Rooms.forEach((room) => {
+            room.position.y -= speed;
+          });
           updated = true;
         }
       }
@@ -265,8 +283,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current?.width/2 - 1,
-              canvasRef.current?.height/2,
+              canvasRef.current?.width / 2 - 1,
+              canvasRef.current?.height / 2,
               boundry
             )
           ) {
@@ -280,7 +298,10 @@ const MapsPage: React.FC = () => {
           testBoundry.position.x += speed;
           boundries.forEach((boundry) => {
             boundry.position.x += speed;
-          })
+          });
+          Rooms.forEach((room) => {
+            room.position.x += speed;
+          });
           updated = true;
         }
       }
@@ -290,8 +311,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current?.width/2 + 1,
-              canvasRef.current.height/2,
+              canvasRef.current?.width / 2 + 1,
+              canvasRef.current.height / 2,
               boundry
             )
           ) {
@@ -305,7 +326,10 @@ const MapsPage: React.FC = () => {
           testBoundry.position.x -= speed;
           boundries.forEach((boundry) => {
             boundry.position.x -= speed;
-          })
+          });
+          Rooms.forEach((room) => {
+            room.position.x -= speed;
+          });
           updated = true;
         }
       }
@@ -323,11 +347,18 @@ const MapsPage: React.FC = () => {
 
       drawGrid(context, positionRef.current.x, positionRef.current.y, 50);
       if (backgroundImage.complete) {
-        drawMap(context, backgroundImage, offsetRef.current.x, offsetRef.current.y);
+        drawMap(
+          context,
+          backgroundImage,
+          offsetRef.current.x,
+          offsetRef.current.y
+        );
         Rooms.forEach((room) => {
           room.draw(context);
         });
-        // boundries.forEach((boundry) => {boundry.draw(context);});
+        // boundries.forEach((boundry) => {
+        //   boundry.draw(context);
+        // });
         // testBoundry.draw(context);
 
         if (inChatRoom(positionRef.current.x, positionRef.current.y)) {
@@ -358,15 +389,24 @@ const MapsPage: React.FC = () => {
       // context.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
       // context.fillStyle = "blue";
       // context.fill();
+      const roomStatus = inChatRoom(
+        canvasRef.current.width / 2,
+        canvasRef.current.height / 2
+      );
+      if (roomStatus.inRoom) {
+        console.log("Player is in room:", roomStatus.roomNumber);
+      }
+      console.log(roomStatus);
 
       if (roomData[mapid]) {
         Object.entries(roomData[mapid]).forEach(([id, player]) => {
           if (id === socketId) return;
-          
+
           // Calculate relative position based on map offset
           const relativeX = player.x - positionRef.current.x + canvas.width / 2;
-          const relativeY = player.y - positionRef.current.y + canvas.height / 2;
-          
+          const relativeY =
+            player.y - positionRef.current.y + canvas.height / 2;
+
           drawCharacter(context, playerSprite, frame, relativeX, relativeY);
           context.font = "10px Arial";
           context.fillStyle = "purple";

@@ -24,12 +24,12 @@ class Boundry {
 }
 
 class Room{
-  static width = 12;
-  static height = 12;
+  static width = 36;
+  static height = 36;
   constructor({ position }) {
     this.position = position;
-    this.width = 12;
-    this.height = 12;
+    this.width = 36;
+    this.height = 36;
   }
   draw(context) {
     // console.log(context)
