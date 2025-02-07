@@ -34,6 +34,7 @@ const MapsPage: React.FC = () => {
       [socketId: string]: { x: number; y: number };
     };
   }>({});
+  const [recvMsgs, setRecvMsgs] = useState([]); 
   const socketRef = useRef<Socket | null>(null);
   const positionRef = useRef({ x: 400, y: 400 });
 
@@ -110,7 +111,8 @@ const MapsPage: React.FC = () => {
     };
     socketRef.current?.emit("message", tosenddata);
     socketRef.current?.on("receiveMessage", (data) => {
-      // console.log('receivedmsg', data)
+      console.log('receivedmsg', data)
+      setRecvMsgs(data.msg);
     });
   };
 
@@ -151,6 +153,7 @@ const MapsPage: React.FC = () => {
   function inChatRoom(xloc: number, yloc: number) {
     let isInRoom = false;
     let roomNumber = -1;
+    let roomPosition = { x: 0, y: 0 };
 
     // Check each room in the Rooms array
     Rooms.forEach((room, index) => {
@@ -162,7 +165,8 @@ const MapsPage: React.FC = () => {
         })
       ) {
         isInRoom = true;
-        roomNumber = index + 1; // Adding 1 to make room numbers start from 1
+        roomNumber = index + 1; // Making room numbers start from 1
+        roomPosition = { x: room.position.x, y: room.position.y };
       }
     });
 
@@ -171,6 +175,8 @@ const MapsPage: React.FC = () => {
       return {
         inRoom: true,
         roomNumber: roomNumber,
+        roomX: roomPosition.x,
+        roomY: roomPosition.y,
       };
     }
 
@@ -178,6 +184,8 @@ const MapsPage: React.FC = () => {
     return {
       inRoom: false,
       roomNumber: -1,
+      roomX: null,
+      roomY: null,
     };
   }
 
@@ -375,7 +383,7 @@ const MapsPage: React.FC = () => {
           canvasRef.current.width / 2,
           canvasRef.current.height / 2
         );
-        console.log(canvasRef.current.width / 2, canvasRef.current.height / 2);
+        // console.log(canvasRef.current.width / 2, canvasRef.current.height / 2);
         context.font = "10px Arial";
         context.fillStyle = "purple";
         context.fillText(
@@ -394,9 +402,9 @@ const MapsPage: React.FC = () => {
         canvasRef.current.height / 2
       );
       if (roomStatus.inRoom) {
-        console.log("Player is in room:", roomStatus.roomNumber);
+        console.log("Player is in room:", roomStatus.roomX, roomStatus.roomY);
       }
-      console.log(roomStatus);
+      // console.log(roomStatus);
 
       if (roomData[mapid]) {
         Object.entries(roomData[mapid]).forEach(([id, player]) => {
@@ -442,23 +450,34 @@ const MapsPage: React.FC = () => {
           <div className="w-full h-[30px] text-center content-center bg-[#373B53] text-sm">
             No one in the room
           </div>
-          <div className="w-full h-[380px]">Chats</div>
-          <div className="w-full h-[100px] flex items-center justify-evenly">
-            <Input
-              className="w-[85%] bg-[#202540] "
-              placeholder="Message in the room"
-              onChange={(e) => {
-                setMessage(e.target.value);
-              }}
-            />
-            <button
-              onClick={() => {
-                sendMessage();
-              }}
-            >
-              <SendHorizonalIcon className="text-gray-600" />
-            </button>
+          {showChat && (
+            <>
+              <div className="w-full h-[380px]">
+                {recvMsgs.map((message, index) => (
+          <div key={index} className="p-2 bg-white rounded-lg shadow">
+            <p className="text-sm text-gray-500">ID: {message.socketId}</p>
+            <p className="text-base font-medium text-gray-900">{message.msg}</p>
           </div>
+        ))}
+              </div>
+              <div className="w-full h-[100px] flex items-center justify-evenly">
+                <Input
+                  className="w-[85%] bg-[#202540] "
+                  placeholder="Message in the room"
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    sendMessage();
+                  }}
+                >
+                  <SendHorizonalIcon className="text-gray-600" />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
       {/* {Object.entries(roomData[mapid] || {}).map(([id, player]) => (
