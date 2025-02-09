@@ -1,8 +1,8 @@
 import { collisions } from "@/data/Collisions";
 import { RoomObj } from "@/data/Roomobj";
 
-export const collisionsMap = [];
-export const RoomsMap = [];
+export const collisionsMap: number[][] = [];
+export const RoomsMap: number[][] = [];
 for (let i = 0; i < collisions.length; i += 85) {
   collisionsMap.push(collisions.slice(i, i + 85));
   RoomsMap.push(RoomObj.slice(i, i + 85));
@@ -11,27 +11,39 @@ for (let i = 0; i < collisions.length; i += 85) {
 class Boundry {
   static width = 36;
   static height = 36;
-  constructor({ position }) {
+  position: { x: number; y: number };
+  width: number;
+  height: number;
+  
+  constructor({ position }: { position: { x: number; y: number } }) {
     this.position = position;
-    this.width = 36;
-    this.height = 36;
+    this.width = Boundry.width;
+    this.height = Boundry.height;
   }
-  draw(context) {
+  draw(context: CanvasRenderingContext2D) {
     // console.log(context)
     // context.fillStyle = "red";
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
+type Rooms = {
+  position: { x: number; y: number };
+  width: number;
+  height: number;
+};
 
 class Room{
   static width = 36;
   static height = 36;
-  constructor({ position }) {
+  position: { x: number; y: number };
+  width: number;
+  height: number;
+  constructor({ position }: { position: { x: number; y: number } }) {
     this.position = position;
     this.width = 36;
     this.height = 36;
   }
-  draw(context) {
+  draw(context: CanvasRenderingContext2D) {
     // console.log(context)
     context.fillStyle = "red";
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
@@ -39,8 +51,8 @@ class Room{
 }
 
 export const testBoundry = new Boundry({ position: { x: 400, y: 400 } });
-export const boundries = [];
-export const Rooms = [];
+export const boundries:Rooms[] = [];
+export const Rooms:Rooms[] = [];
 
 
 collisionsMap.forEach((row, i) => {

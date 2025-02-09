@@ -57,7 +57,7 @@ interface messageI{
 
 interface privateRoomType  {
   roomId:String,
-  privateRoomNo:Number,
+  privateRoomNo: Number,
   messages:messageI[]
 }
 let msgs:messageI[]=[]
@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
 
   
   socket.on("message",(data)=>{
-    // console.log(data);
+    console.log(data);
     msgs.push({
           socketId:socket.id,
           msg:data.message

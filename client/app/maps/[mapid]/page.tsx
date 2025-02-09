@@ -63,7 +63,9 @@ const MapsPage: React.FC = () => {
     socketRef.current = sc;
 
     sc.on("connect", () => {
-      setSocketId(sc.id);
+      if (sc.id) {
+        setSocketId(sc.id);
+      }
       // console.log("Connected with socket ID:", sc.id);
 
       // Join a room
@@ -74,16 +76,27 @@ const MapsPage: React.FC = () => {
     sc.on("rooms", (data) => {
       // console.log("Room data received directly:", data);
 
-      const formattedData = Object.keys(data).reduce((acc, roomId) => {
-        acc[roomId] = data[roomId].reduce(
-          (socketsAcc: any, socketId: string) => {
-            socketsAcc[socketId] = { x: 0, y: 0 };
-            return socketsAcc;
-          },
-          {}
-        );
-        return acc;
-      }, {});
+      interface SocketData {
+        [socketId: string]: { x: number; y: number };
+      }
+
+      interface RoomData {
+        [roomId: string]: SocketData;
+      }
+
+      const formattedData: RoomData = Object.keys(data).reduce(
+        (acc, roomId) => {
+          acc[roomId] = data[roomId].reduce(
+            (socketsAcc: SocketData, socketId: string) => {
+              socketsAcc[socketId] = { x: 0, y: 0 };
+              return socketsAcc;
+            },
+            {} as SocketData
+          );
+          return acc;
+        },
+        {} as RoomData
+      );
 
       setRoomData((prevData) => ({
         ...prevData,
@@ -147,7 +160,7 @@ const MapsPage: React.FC = () => {
     };
   }, []);
 
-  function rectangularCollision(xloc, yloc, rectangle2) {
+  function rectangularCollision(xloc: number, yloc: number, rectangle2: any) {
     return (
       xloc + playerImage.width / 8 >= rectangle2.position.x &&
       xloc <= rectangle2.position.x + rectangle2.width &&
@@ -239,8 +252,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current.width / 2,
-              canvasRef.current.height / 2 - 1,
+              canvasRef.current!.width / 2,
+              canvasRef.current!.height / 2 - 1,
               boundry
             )
           ) {
@@ -252,7 +265,7 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.y -= speed; // Move up
           offsetRef.current.y += speed;
-          testBoundry.position.y += speed;
+          // testBoundry.position.y += speed;
           boundries.forEach((boundry) => {
             boundry.position.y += speed;
           });
@@ -268,8 +281,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current.width / 2,
-              canvasRef.current.height / 2 + 1,
+              canvasRef.current!.width / 2,
+              canvasRef.current!.height / 2 + 1,
               boundry
             )
           ) {
@@ -280,7 +293,7 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.y += speed; // Move down
           offsetRef.current.y -= speed;
-          testBoundry.position.y -= speed;
+          // testBoundry.position.y -= speed;
           boundries.forEach((boundry) => {
             boundry.position.y -= speed;
           });
@@ -297,8 +310,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current?.width / 2 - 1,
-              canvasRef.current?.height / 2,
+              canvasRef.current!.width / 2 - 1,
+              canvasRef.current!.height / 2,
               boundry
             )
           ) {
@@ -309,7 +322,7 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.x -= speed; // Move left
           offsetRef.current.x += speed;
-          testBoundry.position.x += speed;
+          // testBoundry.position.x += speed;
           boundries.forEach((boundry) => {
             boundry.position.x += speed;
           });
@@ -325,8 +338,8 @@ const MapsPage: React.FC = () => {
         boundries.forEach((boundry) => {
           if (
             rectangularCollision(
-              canvasRef.current?.width / 2 + 1,
-              canvasRef.current.height / 2,
+              canvasRef.current!.width / 2 + 1,
+              canvasRef.current!.height / 2,
               boundry
             )
           ) {
@@ -337,7 +350,7 @@ const MapsPage: React.FC = () => {
         if (!collisionDetected) {
           positionRef.current.x += speed; // Move right
           offsetRef.current.x -= speed;
-          testBoundry.position.x -= speed;
+          // testBoundry.position.x -= speed;
           boundries.forEach((boundry) => {
             boundry.position.x -= speed;
           });
@@ -367,9 +380,9 @@ const MapsPage: React.FC = () => {
           offsetRef.current.x,
           offsetRef.current.y
         );
-        Rooms.forEach((room) => {
-          room.draw(context);
-        });
+        // Rooms.forEach((room) => {
+        //   room.draw(context);
+        // });
         // boundries.forEach((boundry) => {
         //   boundry.draw(context);
         // });
@@ -382,6 +395,8 @@ const MapsPage: React.FC = () => {
         // console.log(boundries);
       }
       if (playerSprite.complete) {
+        if (!canvasRef.current) return;
+
         drawCharacter(
           context,
           playerSprite,
@@ -408,7 +423,7 @@ const MapsPage: React.FC = () => {
         canvasRef.current.height / 2
       );
       if (roomStatus.inRoom) {
-        console.log("Player is in room:", roomStatus.roomX, roomStatus.roomY);
+        // console.log("Player is in room:", roomStatus.roomX, roomStatus.roomY);
       }
       // console.log(roomStatus);
 
@@ -445,11 +460,15 @@ const MapsPage: React.FC = () => {
   // console.log(collisionsMap.length)
   // console.log(boundries)
   // console.log(Rooms);
+  type Message = {
+    socketId: string;
+    msg: string;
+  };
   return (
     <div className="w-full h-screen bg-[#080A0F] text-white flex items-center justify-center p-10 relative overflow-hidden">
       {/* Cyberpunk Grid Background */}
       <div className="absolute inset-0 bg-grid-small opacity-20"></div>
-      
+
       {/* Game Layout */}
       <div className="relative flex w-full max-w-7xl justify-between items-start gap-6">
         {/* Game Canvas */}
@@ -475,7 +494,7 @@ const MapsPage: React.FC = () => {
           <div className="w-full h-[30px] text-center flex items-center justify-center bg-[#373B53] text-sm text-gray-300">
             No one in the room
           </div>
-          
+
           {showChat && (
             <div className="w-full bg-[#0c0c1d] border border-[#2a2a4e] shadow-xl rounded-lg p-4 relative mt-4">
               {/* Chat Header */}
@@ -486,7 +505,7 @@ const MapsPage: React.FC = () => {
 
               {/* Chat Messages */}
               <div className="w-full h-[280px] overflow-y-auto p-2 bg-[#1a1a2e] rounded-lg custom-scrollbar">
-                {recvMsgs.map((message, index) => (
+                {recvMsgs.map((message: Message, index: number) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, x: 50 }}
@@ -494,8 +513,12 @@ const MapsPage: React.FC = () => {
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                     className="mb-2 flex flex-col bg-[#202040] text-white p-3 rounded-lg shadow-lg border-l-4 border-cyan-500"
                   >
-                    <p className="text-xs text-gray-400">ID: {message.socketId}</p>
-                    <p className="text-base font-semibold text-green-300">{message.msg}</p>
+                    <p className="text-xs text-gray-400">
+                      ID: {message.socketId}
+                    </p>
+                    <p className="text-base font-semibold text-green-300">
+                      {message.msg}
+                    </p>
                   </motion.div>
                 ))}
                 <div ref={chatEndRef}></div>

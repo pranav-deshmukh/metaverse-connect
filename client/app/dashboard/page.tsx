@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 
 const Dashboard = () => {
-  const [selectedMap, setSelectedMap] = useState(null);
+  const [selectedMap, setSelectedMap] = useState('');
   const [username, setUsername] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +20,18 @@ const Dashboard = () => {
   const [mapName, setMapName] = useState("");
   const [mapType, setMapType] = useState(0);
   const [userId, setUserId] = useState("");
-  const [fetchedMaps, setFetchedMaps] = useState([]);
+
+
+   interface MapData {
+  mapId: string;
+  imageUrl?: string;
+  mapName: string;
+  spaceType: string;
+  visitors: number;
+}
+
+
+  const [fetchedMaps, setFetchedMaps] = useState<MapData[]>([]);
   const router = useRouter();
   const maps = [
     {
@@ -92,7 +103,7 @@ const Dashboard = () => {
     } else if (modalNo === 1) {
       return (
         <>
-          <h2 className="text-2xl font-bold mb-4">Create a New Space</h2>
+          <h2 className="text-2xl font-bold mb-4">Get the public Space</h2>
           <p className="text-gray-300 mb-6">
             Choose whether this space is public or private.
           </p>
@@ -172,6 +183,7 @@ const Dashboard = () => {
   const routeToMap = (mapId:string) => {
     router.push(`/maps/${mapId}`);
   }
+ 
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a]">
