@@ -56,7 +56,7 @@ const Dashboard = () => {
       const admin = new Map([[userId, { userId, role: "admin" }]]);
       console.log("players", userId);
       const response = await axios.post(
-        "http://localhost:8000/api/v1/maps/create",
+        "https://metaverse-connect-production-48d4.up.railway.app/api/v1/maps/create",
         {
           mapName,
           mapType,
@@ -82,7 +82,7 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem("jwt");
         const userResponse = await axios.post(
-          "http://localhost:8000/api/v1/users/getUser",
+          "https://metaverse-connect-production-48d4.up.railway.app/api/v1/users/getUser",
           { token }
         );
         setUsername(userResponse.data.name);
