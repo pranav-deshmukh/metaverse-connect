@@ -17,7 +17,7 @@ const createSendToken = (user: userI, statuscode: number, res: Response) => {
   });
 };
 
-export const signUp = async (req: Request, res: Response) => {
+export const signUp = async (req: Request, res: Response):Promise<any> => {
   try {
     let { username, email, password } = req.body;
     password =await bcrypt.hash(password, 12);
@@ -33,7 +33,7 @@ export const signUp = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response):Promise<any> => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username }).select("+password");
@@ -51,11 +51,11 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response):Promise<any> => {
   try {
     const {token} = req.body;
     console.log(token);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string)as jwt.JwtPayload;
     const userId = decoded.id;
     const currentUser = await User.findById(userId);
     if (!currentUser) {
