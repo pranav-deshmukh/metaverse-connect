@@ -55,7 +55,7 @@ export const getUser = async (req: Request, res: Response) => {
   try {
     const {token} = req.body;
     console.log(token);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as jwt.JwtPayload;
     const userId = decoded.id;
     const currentUser = await User.findById(userId);
     if (!currentUser) {
