@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
-export const createMap = async (req: Request, res: Response):Promise<any> => {
+export const createMap = async (req: Request, res: Response) => {
   try {
     const { mapType, mapName, players, spaceType, admin } = req.body;
     console.log(req.body);
@@ -67,7 +67,7 @@ export const createMap = async (req: Request, res: Response):Promise<any> => {
   }
 };
 
-export const getMaps = async (req: Request, res: Response):Promise<any> => {
+export const getMaps = async (req: Request, res: Response) => {
   try {
     const { username } = req.body;
     console.log(username);
@@ -109,7 +109,7 @@ export const getMaps = async (req: Request, res: Response):Promise<any> => {
 };
 
 
-export const addPlayerToMap = async (req: Request, res: Response):Promise<any> => {
+export const addPlayerToMap = async (req: Request, res: Response) => {
   try {
     const {mapId, adminId, playerId} = req.body;
     const map = await MapM.findOne({mapID: mapId});
