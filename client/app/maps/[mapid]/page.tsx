@@ -60,7 +60,7 @@ const MapsPage: React.FC = () => {
   // Socket connection setup
   //test
   useEffect(() => {
-    const sc = io("https://metaverse-connect-production-48d4.up.railway.app/")
+    const sc = io(`${process.env.NEXT_PUBLIC_PROD}`)
     socketRef.current = sc;
 
     sc.on("connect", () => {
