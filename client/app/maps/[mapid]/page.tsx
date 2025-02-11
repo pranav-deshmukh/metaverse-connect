@@ -58,8 +58,9 @@ const MapsPage: React.FC = () => {
   }, [recvMsgs]);
 
   // Socket connection setup
+  //test
   useEffect(() => {
-    const sc = io("https://metaverse-connect-production-48d4.up.railway.app/");
+    const sc = io("https://metaverse-connect-production-48d4.up.railway.app/")
     socketRef.current = sc;
 
     sc.on("connect", () => {
@@ -83,6 +84,10 @@ const MapsPage: React.FC = () => {
         ...formattedData,
       }));
     });
+
+    function test(){
+      console.log("test")
+    }
 
     sc.on("movement data", (data) => {
       setRoomData(prevRoomData => ({
